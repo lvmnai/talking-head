@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const scenarioSchema = z.object({
   idea: z.string()
@@ -47,46 +48,29 @@ const ScenarioForm = () => {
     setResult(null);
 
     try {
-      console.log("Отправка запроса на webhook:", {
+      console.log("Отправка запроса на backend:", {
         idea: validationResult.data.idea,
         contentType: validationResult.data.contentType,
         audience: validationResult.data.audience,
       });
 
-      const response = await fetch("https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('generate-scenario', {
+        body: {
           idea: validationResult.data.idea,
           contentType: validationResult.data.contentType,
           audience: validationResult.data.audience,
-          mood: "creative",
-        }),
+        },
       });
 
-      console.log("Статус ответа:", response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Ошибка от сервера:", errorText);
-        throw new Error(`Ошибка сервера: ${response.status}`);
+      if (error) {
+        console.error("Ошибка при вызове функции:", error);
+        throw new Error(error.message || "Ошибка при создании сценария");
       }
 
-      const responseText = await response.text();
-      console.log("Ответ от webhook:", responseText);
-
-      let resultData;
-      try {
-        resultData = JSON.parse(responseText);
-      } catch {
-        // Если ответ не JSON, используем как есть
-        resultData = { scenario: responseText };
-      }
+      console.log("Ответ от backend:", data);
 
       toast.success("Сценарий успешно создан!");
-      setResult(resultData.scenario || resultData.result || JSON.stringify(resultData, null, 2));
+      setResult(data.scenario || data.result || JSON.stringify(data, null, 2));
       
       // Сброс формы
       setIdea("");
