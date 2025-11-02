@@ -55,8 +55,8 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {[
                 { title: "TikTok", desc: "Вирусные сценарии для коротких видео" },
-                { title: "Instagram", desc: "Контент для Reels и Stories" },
-                { title: "YouTube Shorts", desc: "Захватывающие короткие ролики" },
+                { title: "Instagram Reels", desc: "Контент для Reels и Stories" },
+                { title: "YouTube", desc: "Видео любой длины и формата" },
               ].map((item, index) => (
                 <div
                   key={index}

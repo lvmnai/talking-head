@@ -11,24 +11,42 @@ serve(async (req) => {
   }
 
   try {
-    const { idea, contentType, audience } = await req.json();
-
-    console.log("Generating scenario with:", { idea, contentType, audience });
-
-    // Формируем URL с параметрами для GET запроса
-    const webhookUrl = new URL("https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0");
-    webhookUrl.searchParams.set('idea', idea);
-    webhookUrl.searchParams.set('contentType', contentType);
-    webhookUrl.searchParams.set('audience', audience);
-    webhookUrl.searchParams.set('mood', 'creative');
-
-    console.log("Requesting webhook URL:", webhookUrl.toString());
+    const { idea, contentType, audience, purpose, tone, format } = await req.json();
     
-    const response = await fetch(webhookUrl.toString(), {
-      method: "GET",
+    if (!idea || !contentType || !audience || !purpose || !tone || !format) {
+      console.error('Missing required fields:', { idea, contentType, audience, purpose, tone, format });
+      return new Response(
+        JSON.stringify({ 
+          error: 'Отсутствуют обязательные поля',
+          details: 'Все поля формы обязательны для заполнения'
+        }), 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const webhookUrl = 'https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0';
+    
+    const requestBody = {
+      idea,
+      channel: contentType,
+      audience,
+      purpose,
+      tone,
+      format,
+    };
+
+    console.log('Отправка POST запроса на webhook:', webhookUrl);
+    console.log('Тело запроса:', JSON.stringify(requestBody, null, 2));
+    
+    const response = await fetch(webhookUrl, {
+      method: "POST",
       headers: {
-        "Accept": "application/json",
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(requestBody),
     });
 
     console.log("Webhook response status:", response.status);

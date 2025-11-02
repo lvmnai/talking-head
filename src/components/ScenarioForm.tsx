@@ -12,19 +12,29 @@ const scenarioSchema = z.object({
     .trim()
     .min(5, "Тема должна содержать минимум 5 символов")
     .max(500, "Тема не должна превышать 500 символов"),
-  contentType: z.enum(["tiktok", "instagram", "youtube"], {
+  contentType: z.enum(["tiktok", "instagram", "youtube-shorts", "youtube"], {
     errorMap: () => ({ message: "Выберите канал" })
   }),
   audience: z.string()
     .trim()
     .min(3, "Опишите вашу аудиторию (минимум 3 символа)")
     .max(200, "Описание аудитории не должно превышать 200 символов"),
+  purpose: z.string()
+    .min(1, "Выберите цель контента"),
+  tone: z.string()
+    .min(1, "Выберите тональность"),
+  format: z.enum(["short", "long"], {
+    errorMap: () => ({ message: "Выберите формат" })
+  }),
 });
 
 const ScenarioForm = () => {
   const [idea, setIdea] = useState("");
   const [contentType, setContentType] = useState("");
   const [audience, setAudience] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [tone, setTone] = useState("");
+  const [format, setFormat] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
@@ -115,6 +125,9 @@ const ScenarioForm = () => {
       idea,
       contentType,
       audience,
+      purpose,
+      tone,
+      format,
     });
 
     if (!validationResult.success) {
@@ -131,6 +144,9 @@ const ScenarioForm = () => {
         idea: validationResult.data.idea,
         contentType: validationResult.data.contentType,
         audience: validationResult.data.audience,
+        purpose: validationResult.data.purpose,
+        tone: validationResult.data.tone,
+        format: validationResult.data.format,
       });
 
       const { data, error } = await supabase.functions.invoke('generate-scenario', {
@@ -138,6 +154,9 @@ const ScenarioForm = () => {
           idea: validationResult.data.idea,
           contentType: validationResult.data.contentType,
           audience: validationResult.data.audience,
+          purpose: validationResult.data.purpose,
+          tone: validationResult.data.tone,
+          format: validationResult.data.format,
         },
       });
 
@@ -155,6 +174,9 @@ const ScenarioForm = () => {
       setIdea("");
       setContentType("");
       setAudience("");
+      setPurpose("");
+      setTone("");
+      setFormat("");
     } catch (error) {
       console.error("Ошибка при создании сценария:", error);
       toast.error(
@@ -188,8 +210,9 @@ const ScenarioForm = () => {
             </SelectTrigger>
             <SelectContent className="bg-popover border-border">
               <SelectItem value="tiktok">TikTok</SelectItem>
-              <SelectItem value="instagram">Instagram</SelectItem>
-              <SelectItem value="youtube">YouTube Shorts</SelectItem>
+              <SelectItem value="instagram">Instagram Reels</SelectItem>
+              <SelectItem value="youtube-shorts">YouTube Shorts</SelectItem>
+              <SelectItem value="youtube">YouTube</SelectItem>
             </SelectContent>
           </Select>
 
@@ -201,6 +224,44 @@ const ScenarioForm = () => {
             className="h-14 bg-card/50 backdrop-blur-sm border-border focus:border-primary transition-all"
             disabled={isLoading}
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Select value={purpose} onValueChange={setPurpose} disabled={isLoading}>
+            <SelectTrigger className="h-14 bg-card/50 backdrop-blur-sm border-border">
+              <SelectValue placeholder="Цель контента" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              <SelectItem value="sale">Продажа</SelectItem>
+              <SelectItem value="provocation">Провокация</SelectItem>
+              <SelectItem value="engagement">Вовлечение</SelectItem>
+              <SelectItem value="education">Образование</SelectItem>
+              <SelectItem value="entertainment">Развлечение</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={tone} onValueChange={setTone} disabled={isLoading}>
+            <SelectTrigger className="h-14 bg-card/50 backdrop-blur-sm border-border">
+              <SelectValue placeholder="Тональность" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              <SelectItem value="humorous">Юмористическая</SelectItem>
+              <SelectItem value="provocative">Провокационная</SelectItem>
+              <SelectItem value="motivational">Мотивационная</SelectItem>
+              <SelectItem value="serious">Серьёзная</SelectItem>
+              <SelectItem value="casual">Повседневная</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={format} onValueChange={setFormat} disabled={isLoading}>
+            <SelectTrigger className="h-14 bg-card/50 backdrop-blur-sm border-border">
+              <SelectValue placeholder="Формат" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              <SelectItem value="short">Короткий</SelectItem>
+              <SelectItem value="long">Длинный</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <Button
