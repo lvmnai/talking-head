@@ -15,20 +15,20 @@ serve(async (req) => {
 
     console.log("Generating scenario with:", { idea, contentType, audience });
 
-    // Отправляем запрос на внешний webhook
-    const webhookUrl = "https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0";
+    // Формируем URL с параметрами для GET запроса
+    const webhookUrl = new URL("https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0");
+    webhookUrl.searchParams.set('idea', idea);
+    webhookUrl.searchParams.set('contentType', contentType);
+    webhookUrl.searchParams.set('audience', audience);
+    webhookUrl.searchParams.set('mood', 'creative');
+
+    console.log("Requesting webhook URL:", webhookUrl.toString());
     
-    const response = await fetch(webhookUrl, {
-      method: "POST",
+    const response = await fetch(webhookUrl.toString(), {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
+        "Accept": "application/json",
       },
-      body: JSON.stringify({
-        idea,
-        contentType,
-        audience,
-        mood: "creative",
-      }),
     });
 
     console.log("Webhook response status:", response.status);
