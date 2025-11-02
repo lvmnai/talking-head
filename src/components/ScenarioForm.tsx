@@ -4,111 +4,169 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Sparkles } from "lucide-react";
+import { z } from "zod";
+
+const scenarioSchema = z.object({
+  idea: z.string()
+    .trim()
+    .min(5, "Тема должна содержать минимум 5 символов")
+    .max(500, "Тема не должна превышать 500 символов"),
+  contentType: z.enum(["tiktok", "instagram", "youtube"], {
+    errorMap: () => ({ message: "Выберите канал" })
+  }),
+  audience: z.string()
+    .trim()
+    .min(3, "Опишите вашу аудиторию (минимум 3 символа)")
+    .max(200, "Описание аудитории не должно превышать 200 символов"),
+});
 
 const ScenarioForm = () => {
   const [idea, setIdea] = useState("");
   const [contentType, setContentType] = useState("");
   const [audience, setAudience] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!idea || !contentType || !audience) {
-      toast.error("Пожалуйста, заполните все поля");
+    // Валидация полей
+    const validationResult = scenarioSchema.safeParse({
+      idea,
+      contentType,
+      audience,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
+      toast.error(firstError.message);
       return;
     }
 
     setIsLoading(true);
+    setResult(null);
 
     try {
+      console.log("Отправка запроса на webhook:", {
+        idea: validationResult.data.idea,
+        contentType: validationResult.data.contentType,
+        audience: validationResult.data.audience,
+      });
+
       const response = await fetch("https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          idea,
-          contentType,
-          audience,
+          idea: validationResult.data.idea,
+          contentType: validationResult.data.contentType,
+          audience: validationResult.data.audience,
           mood: "creative",
         }),
       });
 
+      console.log("Статус ответа:", response.status);
+
       if (!response.ok) {
-        throw new Error("Ошибка при создании сценария");
+        const errorText = await response.text();
+        console.error("Ошибка от сервера:", errorText);
+        throw new Error(`Ошибка сервера: ${response.status}`);
       }
 
-      const result = await response.json();
+      const responseText = await response.text();
+      console.log("Ответ от webhook:", responseText);
+
+      let resultData;
+      try {
+        resultData = JSON.parse(responseText);
+      } catch {
+        // Если ответ не JSON, используем как есть
+        resultData = { scenario: responseText };
+      }
+
       toast.success("Сценарий успешно создан!");
-      console.log("Результат:", result);
+      setResult(resultData.scenario || resultData.result || JSON.stringify(resultData, null, 2));
       
       // Сброс формы
       setIdea("");
       setContentType("");
       setAudience("");
     } catch (error) {
-      toast.error("Не удалось создать сценарий. Попробуйте еще раз.");
-      console.error("Ошибка:", error);
+      console.error("Ошибка при создании сценария:", error);
+      toast.error(
+        error instanceof Error 
+          ? `Не удалось создать сценарий: ${error.message}` 
+          : "Не удалось создать сценарий. Попробуйте еще раз."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in">
-      <div className="space-y-2">
-        <Input
-          type="text"
-          placeholder="Введите тему или идею..."
-          value={idea}
-          onChange={(e) => setIdea(e.target.value)}
-          className="h-14 text-lg bg-card/50 backdrop-blur-sm border-border focus:border-primary transition-all"
+    <div className="w-full max-w-2xl mx-auto space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
+        <div className="space-y-2">
+          <Input
+            type="text"
+            placeholder="Введите тему или идею..."
+            value={idea}
+            onChange={(e) => setIdea(e.target.value)}
+            className="h-14 text-lg bg-card/50 backdrop-blur-sm border-border focus:border-primary transition-all"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Select value={contentType} onValueChange={setContentType} disabled={isLoading}>
+            <SelectTrigger className="h-14 bg-card/50 backdrop-blur-sm border-border">
+              <SelectValue placeholder="Выберите канал" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-border">
+              <SelectItem value="tiktok">TikTok</SelectItem>
+              <SelectItem value="instagram">Instagram</SelectItem>
+              <SelectItem value="youtube">YouTube Shorts</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Input
+            type="text"
+            placeholder="Кто ваша аудитория?"
+            value={audience}
+            onChange={(e) => setAudience(e.target.value)}
+            className="h-14 bg-card/50 backdrop-blur-sm border-border focus:border-primary transition-all"
+            disabled={isLoading}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground animate-glow"
           disabled={isLoading}
-        />
-      </div>
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Создаем сценарий...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2 h-5 w-5" />
+              Создать сценарий
+            </>
+          )}
+        </Button>
+      </form>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Select value={contentType} onValueChange={setContentType} disabled={isLoading}>
-          <SelectTrigger className="h-14 bg-card/50 backdrop-blur-sm border-border">
-            <SelectValue placeholder="Выберите канал" />
-          </SelectTrigger>
-          <SelectContent className="bg-popover border-border">
-            <SelectItem value="tiktok">TikTok</SelectItem>
-            <SelectItem value="instagram">Instagram</SelectItem>
-            <SelectItem value="youtube">YouTube Shorts</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Input
-          type="text"
-          placeholder="Кто ваша аудитория?"
-          value={audience}
-          onChange={(e) => setAudience(e.target.value)}
-          className="h-14 bg-card/50 backdrop-blur-sm border-border focus:border-primary transition-all"
-          disabled={isLoading}
-        />
-      </div>
-
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground animate-glow"
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Создаем сценарий...
-          </>
-        ) : (
-          <>
-            <Sparkles className="mr-2 h-5 w-5" />
-            Создать сценарий
-          </>
-        )}
-      </Button>
-    </form>
+      {result && (
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6 animate-fade-in">
+          <h3 className="text-xl font-bold mb-4 text-primary">Результат:</h3>
+          <div className="text-foreground whitespace-pre-wrap">{result}</div>
+        </div>
+      )}
+    </div>
   );
 };
 
