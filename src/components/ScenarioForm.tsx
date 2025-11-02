@@ -3,10 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Copy, FileDown } from "lucide-react";
+import { Loader2, Sparkles, Copy, FileDown, Printer } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import jsPDF from "jspdf";
 
 const scenarioSchema = z.object({
   idea: z.string()
@@ -40,29 +39,71 @@ const ScenarioForm = () => {
     }
   };
 
-  const handleExportToPDF = () => {
+  const handleExportToFile = () => {
     if (!result) return;
 
     try {
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const margin = 15;
-      const maxWidth = pageWidth - 2 * margin;
-      
-      // Добавляем заголовок
-      doc.setFontSize(16);
-      doc.text("Сценарий", margin, 20);
-      
-      // Добавляем текст сценария
-      doc.setFontSize(11);
-      const lines = doc.splitTextToSize(result, maxWidth);
-      doc.text(lines, margin, 35);
-      
-      // Сохраняем PDF
-      doc.save("scenario.pdf");
-      toast.success("PDF успешно экспортирован!");
+      const blob = new Blob([result], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'scenario.txt';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("Файл успешно скачан!");
     } catch (error) {
-      toast.error("Не удалось экспортировать PDF");
+      toast.error("Не удалось экспортировать файл");
+    }
+  };
+
+  const handlePrint = () => {
+    if (!result) return;
+
+    try {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        toast.error("Не удалось открыть окно печати");
+        return;
+      }
+      
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Сценарий</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                padding: 40px;
+                line-height: 1.6;
+              }
+              h1 {
+                color: #333;
+                margin-bottom: 20px;
+              }
+              pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                font-family: Arial, sans-serif;
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Сценарий</h1>
+            <pre>${result}</pre>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+    } catch (error) {
+      toast.error("Не удалось открыть окно печати");
     }
   };
 
@@ -184,9 +225,9 @@ const ScenarioForm = () => {
 
       {result && (
         <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6 animate-fade-in space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h3 className="text-xl font-bold text-primary">Результат:</h3>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -199,11 +240,20 @@ const ScenarioForm = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleExportToPDF}
+                onClick={handleExportToFile}
                 className="gap-2"
               >
                 <FileDown className="h-4 w-4" />
-                Экспорт в PDF
+                Скачать .txt
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePrint}
+                className="gap-2"
+              >
+                <Printer className="h-4 w-4" />
+                Печать/PDF
               </Button>
             </div>
           </div>
