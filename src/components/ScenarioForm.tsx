@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, Copy, FileDown } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from "jspdf";
 
 const scenarioSchema = z.object({
   idea: z.string()
@@ -27,6 +28,43 @@ const ScenarioForm = () => {
   const [audience, setAudience] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+
+  const handleCopyText = async () => {
+    if (!result) return;
+    
+    try {
+      await navigator.clipboard.writeText(result);
+      toast.success("Текст скопирован в буфер обмена!");
+    } catch (error) {
+      toast.error("Не удалось скопировать текст");
+    }
+  };
+
+  const handleExportToPDF = () => {
+    if (!result) return;
+
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 15;
+      const maxWidth = pageWidth - 2 * margin;
+      
+      // Добавляем заголовок
+      doc.setFontSize(16);
+      doc.text("Сценарий", margin, 20);
+      
+      // Добавляем текст сценария
+      doc.setFontSize(11);
+      const lines = doc.splitTextToSize(result, maxWidth);
+      doc.text(lines, margin, 35);
+      
+      // Сохраняем PDF
+      doc.save("scenario.pdf");
+      toast.success("PDF успешно экспортирован!");
+    } catch (error) {
+      toast.error("Не удалось экспортировать PDF");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,8 +183,30 @@ const ScenarioForm = () => {
       </form>
 
       {result && (
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6 animate-fade-in">
-          <h3 className="text-xl font-bold mb-4 text-primary">Результат:</h3>
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6 animate-fade-in space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-primary">Результат:</h3>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyText}
+                className="gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Копировать
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportToPDF}
+                className="gap-2"
+              >
+                <FileDown className="h-4 w-4" />
+                Экспорт в PDF
+              </Button>
+            </div>
+          </div>
           <div className="text-foreground whitespace-pre-wrap">{result}</div>
         </div>
       )}
