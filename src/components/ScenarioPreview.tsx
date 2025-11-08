@@ -42,8 +42,8 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
           </Button>
         </div>
 
-        <div className="bg-muted/50 p-6 rounded-none mb-6 max-h-96 overflow-y-auto">
-          <p className="whitespace-pre-wrap text-sm">
+        <div className="bg-muted/50 p-6 rounded-none mb-6 max-h-[600px] overflow-y-auto">
+          <p className="whitespace-pre-wrap text-base">
             {preview}
             <span className="text-muted-foreground">...</span>
           </p>

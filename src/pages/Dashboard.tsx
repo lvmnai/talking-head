@@ -224,8 +224,8 @@ const Dashboard = () => {
                     {formatDate(scenario.created_at)}
                   </p>
 
-                  <div className="bg-muted/50 p-4 rounded-none mb-4 max-h-60 overflow-y-auto">
-                    <p className="whitespace-pre-wrap text-sm">
+                  <div className="bg-muted/50 p-4 rounded-none mb-4 max-h-96 overflow-y-auto">
+                    <p className="whitespace-pre-wrap text-base">
                       {scenario.preview_text}
                       {!scenario.is_paid && "..."}
                     </p>
