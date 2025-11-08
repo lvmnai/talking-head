@@ -84,9 +84,9 @@ const ScenarioFormNew = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-      <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-8 shadow-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
+      <div className="sketch-border p-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div className="space-y-2">
             <Label htmlFor="sphere" className="text-foreground">
               Сфера <span className="text-destructive">*</span>
@@ -96,7 +96,7 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.sphere}
               onChange={(e) => setFormData({ ...formData, sphere: e.target.value })}
-              className="min-h-[80px] bg-background/50 border-border"
+              className="min-h-[80px]"
               required
             />
           </div>
@@ -110,7 +110,7 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.product}
               onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-              className="min-h-[80px] bg-background/50 border-border"
+              className="min-h-[80px]"
               required
             />
           </div>
@@ -124,7 +124,7 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.audience}
               onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-              className="min-h-[80px] bg-background/50 border-border"
+              className="min-h-[80px]"
               required
             />
           </div>
@@ -138,17 +138,17 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.problems}
               onChange={(e) => setFormData({ ...formData, problems: e.target.value })}
-              className="min-h-[80px] bg-background/50 border-border"
+              className="min-h-[80px]"
               required
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="space-y-2">
             <Label className="text-foreground">Цель</Label>
             <Select value={formData.goal} onValueChange={(value) => setFormData({ ...formData, goal: value })}>
-              <SelectTrigger className="bg-background/50 border-border">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -162,7 +162,7 @@ const ScenarioFormNew = () => {
           <div className="space-y-2">
             <Label className="text-foreground">Тональность</Label>
             <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-              <SelectTrigger className="bg-background/50 border-border">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -176,7 +176,7 @@ const ScenarioFormNew = () => {
           <div className="space-y-2">
             <Label className="text-foreground">Формат</Label>
             <Select value={formData.format} onValueChange={(value) => setFormData({ ...formData, format: value })}>
-              <SelectTrigger className="bg-background/50 border-border">
+              <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -190,7 +190,8 @@ const ScenarioFormNew = () => {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-6 animate-glow"
+          size="lg"
+          className="w-full text-lg py-6"
         >
           {isLoading ? (
             <>

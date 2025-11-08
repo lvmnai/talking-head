@@ -36,31 +36,31 @@ const ScenarioResult = ({ scenario, onClose }: ScenarioResultProps) => {
   };
 
   return (
-    <Card className="relative bg-card/80 backdrop-blur-sm border-border p-8 animate-fade-in">
+    <div className="relative sketch-border p-12 max-w-5xl mx-auto">
       <Button
         variant="ghost"
         size="icon"
         onClick={onClose}
-        className="absolute top-4 right-4 hover:bg-muted"
+        className="absolute top-4 right-4"
       >
         <X className="h-5 w-5" />
       </Button>
 
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">Ваш сценарий готов!</h2>
-        <p className="text-muted-foreground">Можно сразу снимать</p>
+      <div className="mb-8">
+        <h2 className="text-3xl font-medium text-foreground mb-2">Ваш сценарий готов!</h2>
+        <p className="text-foreground/70">Можно сразу снимать</p>
       </div>
 
-      <div className="bg-background/50 border border-border rounded-lg p-6 mb-6 max-h-96 overflow-y-auto">
+      <div className="sketch-border p-6 mb-8 max-h-96 overflow-y-auto">
         <pre className="text-foreground whitespace-pre-wrap font-sans text-sm leading-relaxed">
           {scenario}
         </pre>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-6">
         <Button
           onClick={handleCopy}
-          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+          className="flex-1"
         >
           <Copy className="mr-2 h-4 w-4" />
           Копировать
@@ -68,13 +68,13 @@ const ScenarioResult = ({ scenario, onClose }: ScenarioResultProps) => {
         <Button
           onClick={handleDownload}
           variant="outline"
-          className="flex-1 border-border hover:bg-muted"
+          className="flex-1"
         >
           <Download className="mr-2 h-4 w-4" />
           Скачать .txt
         </Button>
       </div>
-    </Card>
+    </div>
   );
 };
 

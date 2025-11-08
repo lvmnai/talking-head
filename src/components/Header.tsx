@@ -16,23 +16,22 @@ const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2 group">
-            <Sparkles className="w-6 h-6 text-primary group-hover:animate-twinkle" />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b-2 border-border sketch-border-light">
+      <div className="container mx-auto px-6 sm:px-12 lg:px-16">
+        <div className="flex items-center justify-between h-20">
+          <Link to="/" className="flex items-center gap-3 group">
+            <span className="text-2xl font-medium text-foreground tracking-tight">
               talkinghead.ai
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-12">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path) ? "text-primary" : "text-muted-foreground"
+                className={`text-sm font-medium transition-colors hover:text-foreground ${
+                  isActive(link.path) ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {link.name}
@@ -40,7 +39,7 @@ const Header = () => {
             ))}
           </nav>
 
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground animate-glow">
+          <Button>
             Создать сценарий
           </Button>
         </div>

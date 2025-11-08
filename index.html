@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <title>talkinghead.ai - Живой сценарий говорящей головы за 2 минуты</title>
     <meta name="description" content="Съёмка с первого дубля, без правок и редактуры. Получите готовый сценарий для TikTok, YouTube Shorts или длинных видео." />
     <meta name="author" content="talkinghead.ai" />
@@ -18,6 +21,14 @@
   </head>
 
   <body>
+    <svg style="position: absolute; width: 0; height: 0;">
+      <defs>
+        <filter id="sketch-filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
