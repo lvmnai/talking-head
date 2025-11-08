@@ -86,7 +86,7 @@ const ScenarioFormNew = () => {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
-      <div className="sketch-border p-12">
+      <div className="sketch-border p-12 transition-all duration-300">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div className="space-y-2">
             <Label htmlFor="sphere" className="text-foreground">

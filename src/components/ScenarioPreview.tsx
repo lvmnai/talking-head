@@ -33,8 +33,8 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="sketch-border-light p-8">
+    <div className="max-w-5xl mx-auto animate-fade-in">
+      <div className="sketch-border-light p-8 transition-all duration-300">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-medium tracking-tight">Превью сценария</h2>
           <Button variant="ghost" onClick={onClose}>
