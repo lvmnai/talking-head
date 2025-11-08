@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,6 +12,21 @@ serve(async (req) => {
   }
 
   try {
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get user from JWT
+    const authHeader = req.headers.get('Authorization');
+    let userId: string | null = null;
+    
+    if (authHeader) {
+      const jwt = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(jwt);
+      userId = user?.id || null;
+    }
+
     // Try to read JSON body; fall back to empty object if none
     const body = await req.json().catch(() => ({} as any));
 
@@ -92,14 +108,54 @@ serve(async (req) => {
     const responseText = await response.text();
     console.log('Webhook response:', responseText);
 
-    let resultData;
+    let fullText: string;
     try {
-      resultData = JSON.parse(responseText);
+      const parsed = JSON.parse(responseText);
+      fullText = parsed.scenario || responseText;
     } catch {
-      resultData = { scenario: responseText };
+      fullText = responseText;
     }
 
-    return new Response(JSON.stringify(resultData), {
+    // Extract first paragraph as preview
+    const lines = fullText.split('\n').filter(line => line.trim());
+    const preview = lines[0] || fullText.substring(0, 200) + '...';
+
+    // Save scenario to database if user is authenticated
+    let scenarioId: string | null = null;
+    
+    if (userId) {
+      const { data: scenarioData, error: insertError } = await supabase
+        .from('scenarios')
+        .insert({
+          user_id: userId,
+          full_text: fullText,
+          preview_text: preview,
+          parameters: {
+            sphere,
+            product,
+            audience,
+            problems,
+            goal: purpose,
+            tone,
+            format,
+          },
+          is_paid: false,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Error saving scenario:', insertError);
+      } else {
+        scenarioId = scenarioData.id;
+      }
+    }
+
+    return new Response(JSON.stringify({
+      preview,
+      scenarioId,
+      fullText, // Временно для демо
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
