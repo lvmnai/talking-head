@@ -8,9 +8,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import ScenarioResult from "./ScenarioResult";
 
 const ScenarioFormNew = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedScenario, setGeneratedScenario] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     sphere: "",
     product: "",
@@ -46,8 +48,13 @@ const ScenarioFormNew = () => {
 
       if (error) throw error;
 
-      toast.success("Сценарий успешно создан!");
       console.log("Generated scenario:", data);
+      
+      // Extract scenario from response
+      const scenarioText = data?.scenario || data?.result || JSON.stringify(data, null, 2);
+      setGeneratedScenario(scenarioText);
+      
+      toast.success("Сценарий успешно создан!");
       
       // Reset form
       setFormData({
@@ -66,6 +73,15 @@ const ScenarioFormNew = () => {
       setIsLoading(false);
     }
   };
+
+  if (generatedScenario) {
+    return (
+      <ScenarioResult 
+        scenario={generatedScenario} 
+        onClose={() => setGeneratedScenario(null)} 
+      />
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
