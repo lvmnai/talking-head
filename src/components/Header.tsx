@@ -22,7 +22,7 @@ const Header = () => {
           <Link to="/" className="flex items-center gap-2 group">
             <Sparkles className="w-6 h-6 text-primary group-hover:animate-twinkle" />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Lunora
+              talkinghead.ai
             </span>
           </Link>
 
@@ -41,7 +41,7 @@ const Header = () => {
           </nav>
 
           <Button className="bg-primary hover:bg-primary/90 text-primary-foreground animate-glow">
-            Start Creating
+            Создать сценарий
           </Button>
         </div>
       </div>
