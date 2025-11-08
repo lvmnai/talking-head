@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScenarioFormNew from "@/components/ScenarioFormNew";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const hero = useScrollAnimation();
@@ -68,22 +69,32 @@ const Index = () => {
             <p className="text-center text-foreground/70 mb-20 max-w-3xl mx-auto text-lg leading-tight">
               У нас нейросети пишут на уровне лучших сценаристов и креаторов. Потому что мы сами такие
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-              {[
-                { title: "Продажи", subtitle: "(остеопатия)", desc: "Конвертируем просмотры в записи на приём" },
-                { title: "Виральность", subtitle: "(психология)", desc: "Миллионы просмотров и вовлечённая аудитория" },
-                { title: "Длинные, всё вместе", subtitle: "(маркетинг)", desc: "Продажи + охваты в одном видео" },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className={`text-center p-12 sketch-border card-hover scroll-fade-in scroll-fade-in-delay-${index + 1}`}
-                >
-                  <h3 className="text-2xl font-medium mb-2 text-foreground">{item.title}</h3>
-                  <p className="text-sm text-foreground/60 mb-4">{item.subtitle}</p>
-                  <p className="text-foreground/70">{item.desc}</p>
-                </div>
-              ))}
-            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+            {[
+              { title: "Продажи", subtitle: "(остеопатия)", desc: "Конвертируем просмотры в записи на приём" },
+              { title: "Виральность", subtitle: "(психология)", desc: "Миллионы просмотров и вовлечённая аудитория" },
+              { title: "Длинные, всё вместе", subtitle: "(маркетинг)", desc: "Продажи + охваты в одном видео" },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="text-center p-12 sketch-border card-hover"
+              >
+                <h3 className="text-2xl font-medium mb-2 text-foreground">{item.title}</h3>
+                <p className="text-sm text-foreground/60 mb-4">{item.subtitle}</p>
+                <p className="text-foreground/70">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-16">
+            <Button 
+              size="lg"
+              variant="outline"
+              onClick={() => window.location.href = '/examples'}
+              className="text-base px-8"
+            >
+              Смотреть все примеры →
+            </Button>
           </div>
         </section>
       </main>
