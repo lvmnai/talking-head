@@ -169,9 +169,10 @@ serve(async (req) => {
       fullText = responseText;
     }
 
-    // Extract first paragraph as preview
-    const lines = fullText.split('\n').filter(line => line.trim());
-    const preview = lines[0] || fullText.substring(0, 200) + '...';
+    // Extract substantial preview (first 1500 characters to show value)
+    const preview = fullText.length > 1500 
+      ? fullText.substring(0, 1500) 
+      : fullText;
 
     // Save scenario to database if user is authenticated
     let scenarioId: string | null = null;
