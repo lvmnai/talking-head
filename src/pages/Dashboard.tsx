@@ -16,10 +16,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2, Copy, Download, LogOut } from "lucide-react";
+import { Trash2, Copy, Download, LogOut, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportScenario, ExportFormat } from "@/lib/exportUtils";
 
 interface Profile {
   id: string;
@@ -104,17 +111,20 @@ const Dashboard = () => {
     toast.success("Скопировано в буфер обмена");
   };
 
-  const handleDownload = (text: string, id: string) => {
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `scenario-${id}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast.success("Файл загружен");
+  const handleDownload = async (text: string, id: string, format: ExportFormat) => {
+    try {
+      await exportScenario(text, id, format);
+      const formatNames = {
+        txt: "TXT",
+        pdf: "PDF",
+        docx: "DOCX",
+        md: "Markdown"
+      };
+      toast.success(`Файл ${formatNames[format]} загружен`);
+    } catch (error) {
+      toast.error("Ошибка при экспорте файла");
+      console.error(error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -241,13 +251,37 @@ const Dashboard = () => {
                           <Copy className="mr-2 h-4 w-4" />
                           Копировать
                         </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => handleDownload(scenario.full_text, scenario.id)}
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Скачать
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                              <Download className="mr-2 h-4 w-4" />
+                              Скачать
+                              <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem
+                              onClick={() => handleDownload(scenario.full_text, scenario.id, "txt")}
+                            >
+                              Скачать как TXT
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDownload(scenario.full_text, scenario.id, "pdf")}
+                            >
+                              Скачать как PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDownload(scenario.full_text, scenario.id, "docx")}
+                            >
+                              Скачать как DOCX
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDownload(scenario.full_text, scenario.id, "md")}
+                            >
+                              Скачать как Markdown
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </>
                     ) : (
                       <Button disabled className="cursor-not-allowed">

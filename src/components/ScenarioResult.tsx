@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Copy, Download, X } from "lucide-react";
+import { Copy, Download, X, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportScenario, ExportFormat } from "@/lib/exportUtils";
 
 interface ScenarioResultProps {
   scenario: string;
@@ -18,20 +25,19 @@ const ScenarioResult = ({ scenario, onClose }: ScenarioResultProps) => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async (format: ExportFormat) => {
     try {
-      const blob = new Blob([scenario], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `scenario-${Date.now()}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      toast.success("Сценарий сохранён");
+      await exportScenario(scenario, `${Date.now()}`, format);
+      const formatNames = {
+        txt: "TXT",
+        pdf: "PDF",
+        docx: "DOCX",
+        md: "Markdown"
+      };
+      toast.success(`Сценарий сохранён как ${formatNames[format]}`);
     } catch (error) {
       toast.error("Не удалось сохранить файл");
+      console.error(error);
     }
   };
 
@@ -65,14 +71,29 @@ const ScenarioResult = ({ scenario, onClose }: ScenarioResultProps) => {
           <Copy className="mr-2 h-4 w-4" />
           Копировать
         </Button>
-        <Button
-          onClick={handleDownload}
-          variant="outline"
-          className="flex-1"
-        >
-          <Download className="mr-2 h-4 w-4" />
-          Скачать .txt
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex-1">
+              <Download className="mr-2 h-4 w-4" />
+              Скачать
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleDownload("txt")}>
+              Скачать как TXT
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDownload("pdf")}>
+              Скачать как PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDownload("docx")}>
+              Скачать как DOCX
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDownload("md")}>
+              Скачать как Markdown
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
