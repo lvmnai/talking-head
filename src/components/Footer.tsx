@@ -1,13 +1,10 @@
-import { Sparkles } from "lucide-react";
-
 const Footer = () => {
-  return (
-    <footer className="bg-card border-t border-border mt-20">
+  return <footer className="bg-card border-t border-border mt-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-primary" />
+              
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Lunora
               </span>
@@ -39,8 +36,6 @@ const Footer = () => {
           <p>© 2025 Lunora. Где идеи расцветают под звёздами.</p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
