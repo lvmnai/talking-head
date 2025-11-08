@@ -169,9 +169,9 @@ serve(async (req) => {
       fullText = responseText;
     }
 
-    // Extract substantial preview (first 1500 characters to show value)
-    const preview = fullText.length > 1500 
-      ? fullText.substring(0, 1500) 
+    // Extract substantial preview (first 4000 characters to show value)
+    const preview = fullText.length > 4000 
+      ? fullText.substring(0, 4000) 
       : fullText;
 
     // Save scenario to database if user is authenticated
