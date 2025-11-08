@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -151,19 +151,11 @@ const Dashboard = () => {
         {/* User Header */}
         <div className="sketch-border-light p-6 mb-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback className="text-lg">
-                  {profile?.full_name?.charAt(0) || profile?.email?.charAt(0) || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-2xl font-medium tracking-tight">
-                  {profile?.full_name || "Пользователь"}
-                </h1>
-                <p className="text-muted-foreground">{profile?.email}</p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-medium tracking-tight mb-1">
+                {profile?.full_name || "Пользователь"}
+              </h1>
+              <p className="text-muted-foreground">{profile?.email}</p>
             </div>
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />

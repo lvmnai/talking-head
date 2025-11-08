@@ -1,16 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { LogOut, UserCircle } from "lucide-react";
 
 const Header = () => {
   const location = useLocation();
@@ -65,34 +57,22 @@ const Header = () => {
             ))}
           </nav>
 
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={user.user_metadata?.avatar_url} />
-                    <AvatarFallback>
-                      {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                  <UserCircle className="mr-2 h-4 w-4" />
+          <div className="flex items-center gap-4">
+            {user ? (
+              <>
+                <Button variant="outline" onClick={() => navigate("/dashboard")}>
                   Личный кабинет
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
+                </Button>
+                <Button variant="ghost" onClick={handleSignOut}>
                   Выйти
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button onClick={() => navigate("/auth")}>
-              Войти
-            </Button>
-          )}
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => navigate("/auth")}>
+                Войти
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
