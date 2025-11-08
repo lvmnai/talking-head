@@ -30,10 +30,36 @@ serve(async (req) => {
     // Try to read JSON body; fall back to empty object if none
     const body = await req.json().catch(() => ({} as any));
 
+    // Input validation - maximum lengths
+    const MAX_TEXT_LENGTH = 2000;
+    const VALID_TONES = ['friendly', 'witty', 'provocative'];
+    const VALID_FORMATS = ['short', 'long'];
+    const VALID_GOALS = ['sales', 'viral', 'both'];
+
     // Accept both the old and new schema
     const sphere = (body.sphere ?? '').toString().trim();
     const product = (body.product ?? '').toString().trim();
     const problems = (body.problems ?? '').toString().trim();
+
+    // Validate lengths
+    if (sphere.length > MAX_TEXT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Поле "Сфера" превышает лимит в ${MAX_TEXT_LENGTH} символов` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (product.length > MAX_TEXT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Поле "Продукт/услуга" превышает лимит в ${MAX_TEXT_LENGTH} символов` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (problems.length > MAX_TEXT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Поле "Проблемы ЦА" превышает лимит в ${MAX_TEXT_LENGTH} символов` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const ideaRaw = body.idea as string | undefined;
     const idea = ideaRaw?.trim() ||
@@ -42,9 +68,36 @@ serve(async (req) => {
         : '');
 
     const audience = (body.audience ?? '').toString().trim();
+    if (audience.length > MAX_TEXT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Поле "Целевая аудитория" превышает лимит в ${MAX_TEXT_LENGTH} символов` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const purpose = (body.purpose ?? body.goal ?? '').toString().trim();
     const tone = (body.tone ?? '').toString().trim();
     const format = (body.format ?? '').toString().trim();
+
+    // Validate enum values
+    if (tone && !VALID_TONES.includes(tone)) {
+      return new Response(
+        JSON.stringify({ error: `Некорректное значение поля "Тональность". Допустимые значения: ${VALID_TONES.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (format && !VALID_FORMATS.includes(format)) {
+      return new Response(
+        JSON.stringify({ error: `Некорректное значение поля "Формат". Допустимые значения: ${VALID_FORMATS.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    if (purpose && !VALID_GOALS.includes(purpose)) {
+      return new Response(
+        JSON.stringify({ error: `Некорректное значение поля "Цель". Допустимые значения: ${VALID_GOALS.join(', ')}` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Optional: platform/channel if provided in any schema
     const contentType = (body.contentType ?? body.channel ?? '').toString().trim();
@@ -88,17 +141,17 @@ serve(async (req) => {
     if (product) url.searchParams.set('product', product);
     if (problems) url.searchParams.set('problems', problems);
 
-    console.log('Отправка GET на webhook:', url.toString());
+    console.log('Generating scenario for user:', userId || 'anonymous');
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: { Accept: 'application/json' },
     });
 
-    console.log('Webhook response status (GET):', response.status);
+    console.log('Webhook response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Ошибка webhook (GET):', errorText);
+      console.error('Webhook error, status:', response.status);
       return new Response(
         JSON.stringify({ error: `Ошибка webhook: ${response.status}`, details: errorText }),
         { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -106,7 +159,7 @@ serve(async (req) => {
     }
 
     const responseText = await response.text();
-    console.log('Webhook response:', responseText);
+    console.log('Webhook response received successfully');
 
     let fullText: string;
     try {

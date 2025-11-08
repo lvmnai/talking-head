@@ -47,8 +47,6 @@ const ScenarioFormNew = () => {
       });
 
       if (error) throw error;
-
-      console.log("Generated scenario:", data);
       
       // Extract preview and scenarioId from response
       if (data?.preview && data?.scenarioId) {
