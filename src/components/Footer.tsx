@@ -5,9 +5,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Lunora
-              </span>
+              
             </div>
             <p className="text-muted-foreground text-sm max-w-md">
               Пространство для тех, кто думает, мечтает и создает. Генерируйте вдохновляющие сценарии для ваших видео.
@@ -32,9 +30,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>© 2025 Lunora. Где идеи расцветают под звёздами.</p>
-        </div>
+        
       </div>
     </footer>;
 };
