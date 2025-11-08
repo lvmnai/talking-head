@@ -9,10 +9,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-foreground/90",
-        outline: "border-2 border-border bg-background hover:bg-muted",
-        ghost: "border-none hover:bg-muted sketch-border-light",
-        link: "border-none underline-offset-4 hover:underline",
+        default: "bg-foreground text-background hover:bg-foreground/90",
+        outline: "border-2 border-border bg-background text-foreground hover:bg-muted",
+        ghost: "border-none hover:bg-muted text-foreground sketch-border-light",
+        link: "border-none underline-offset-4 hover:underline text-foreground",
       },
       size: {
         default: "h-10 px-4 py-2",
