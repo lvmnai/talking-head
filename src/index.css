@@ -8,91 +8,62 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 215 25% 27%;
-    --foreground: 0 0% 0%;
+    --background: 220 45% 8%;
+    --foreground: 45 50% 95%;
 
-    --card: 215 20% 30%;
-    --card-foreground: 0 0% 0%;
+    --card: 220 40% 12%;
+    --card-foreground: 45 50% 95%;
 
-    --popover: 215 25% 27%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 220 45% 10%;
+    --popover-foreground: 45 50% 95%;
 
-    --primary: 0 0% 0%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 45 50% 98%;
 
-    --secondary: 215 20% 35%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 220 45% 8%;
 
-    --muted: 215 15% 40%;
-    --muted-foreground: 0 0% 0%;
+    --muted: 220 35% 18%;
+    --muted-foreground: 45 20% 70%;
 
-    --accent: 0 0% 0%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 45 95% 90%;
+    --accent-foreground: 220 45% 8%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 45 50% 98%;
 
-    --border: 0 0% 0%;
-    --input: 0 0% 100%;
-    --ring: 0 0% 0%;
+    --border: 220 30% 25%;
+    --input: 220 30% 20%;
+    --ring: 262 83% 58%;
 
-    --radius: 0rem;
-  }
-}
+    --radius: 0.75rem;
 
-/* Grain effect overlay */
-@layer base {
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    /* Custom design tokens */
+    --night-sky: 220 45% 8%;
+    --star-glow: 45 95% 90%;
+    --purple-glow: 262 83% 58%;
+    --blue-glow: 217 91% 60%;
+    
+    /* Gradients */
+    --gradient-night: linear-gradient(135deg, hsl(220 45% 8%), hsl(240 40% 12%));
+    --gradient-hero: linear-gradient(135deg, hsl(262 83% 58% / 0.2), hsl(217 91% 60% / 0.2));
+    --gradient-glow: radial-gradient(circle at center, hsl(262 83% 58% / 0.3), transparent);
+    
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.3);
+    --shadow-card: 0 10px 40px hsl(220 45% 4% / 0.5);
+    
+    /* Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
 @layer base {
   * {
     @apply border-border;
-    letter-spacing: -0.03em;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    font-weight: 400;
-    line-height: 1.05;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-weight: 500;
-    line-height: 1.00;
-  }
-  
-  /* Sketch border effect */
-  .sketch-border {
-    position: relative;
-    border: none;
-    background: transparent;
-  }
-  
-  .sketch-border::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border: 2px solid black;
-    border-radius: 0;
-    clip-path: polygon(
-      0% 2%, 2% 0%, 98% 0%, 100% 2%,
-      100% 98%, 98% 100%, 2% 100%, 0% 98%,
-      0% 50%, 1% 48%, 0% 46%,
-      0% 25%, 1% 23%, 0% 21%,
-      0% 75%, 1% 73%, 0% 71%
-    );
   }
 }

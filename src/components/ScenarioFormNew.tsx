@@ -84,11 +84,11 @@ const ScenarioFormNew = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
-      <div className="sketch-border bg-background p-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="space-y-3">
-            <Label htmlFor="sphere" className="text-foreground font-medium tracking-tight">
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+      <div className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-8 shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="space-y-2">
+            <Label htmlFor="sphere" className="text-foreground">
               Сфера <span className="text-destructive">*</span>
             </Label>
             <Textarea
@@ -96,13 +96,13 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.sphere}
               onChange={(e) => setFormData({ ...formData, sphere: e.target.value })}
-              className="min-h-[100px] bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight"
+              className="min-h-[80px] bg-background/50 border-border"
               required
             />
           </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="product" className="text-foreground font-medium tracking-tight">
+          <div className="space-y-2">
+            <Label htmlFor="product" className="text-foreground">
               Продукт/услуга <span className="text-destructive">*</span>
             </Label>
             <Textarea
@@ -110,13 +110,13 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.product}
               onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-              className="min-h-[100px] bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight"
+              className="min-h-[80px] bg-background/50 border-border"
               required
             />
           </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="audience" className="text-foreground font-medium tracking-tight">
+          <div className="space-y-2">
+            <Label htmlFor="audience" className="text-foreground">
               ЦА <span className="text-destructive">*</span>
             </Label>
             <Textarea
@@ -124,13 +124,13 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.audience}
               onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-              className="min-h-[100px] bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight"
+              className="min-h-[80px] bg-background/50 border-border"
               required
             />
           </div>
 
-          <div className="space-y-3">
-            <Label htmlFor="problems" className="text-foreground font-medium tracking-tight">
+          <div className="space-y-2">
+            <Label htmlFor="problems" className="text-foreground">
               Проблемы ЦА <span className="text-destructive">*</span>
             </Label>
             <Textarea
@@ -138,17 +138,17 @@ const ScenarioFormNew = () => {
               placeholder="чем подробней, тем лучше"
               value={formData.problems}
               onChange={(e) => setFormData({ ...formData, problems: e.target.value })}
-              className="min-h-[100px] bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight"
+              className="min-h-[80px] bg-background/50 border-border"
               required
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          <div className="space-y-3">
-            <Label className="text-foreground font-medium tracking-tight">Цель</Label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="space-y-2">
+            <Label className="text-foreground">Цель</Label>
             <Select value={formData.goal} onValueChange={(value) => setFormData({ ...formData, goal: value })}>
-              <SelectTrigger className="bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight">
+              <SelectTrigger className="bg-background/50 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -159,10 +159,10 @@ const ScenarioFormNew = () => {
             </Select>
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-foreground font-medium tracking-tight">Тональность</Label>
+          <div className="space-y-2">
+            <Label className="text-foreground">Тональность</Label>
             <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-              <SelectTrigger className="bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight">
+              <SelectTrigger className="bg-background/50 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -173,10 +173,10 @@ const ScenarioFormNew = () => {
             </Select>
           </div>
 
-          <div className="space-y-3">
-            <Label className="text-foreground font-medium tracking-tight">Формат</Label>
+          <div className="space-y-2">
+            <Label className="text-foreground">Формат</Label>
             <Select value={formData.format} onValueChange={(value) => setFormData({ ...formData, format: value })}>
-              <SelectTrigger className="bg-input text-foreground border-2 border-border focus:border-foreground tracking-tight">
+              <SelectTrigger className="bg-background/50 border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -190,8 +190,7 @@ const ScenarioFormNew = () => {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full text-base"
-          size="lg"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-6 animate-glow"
         >
           {isLoading ? (
             <>
