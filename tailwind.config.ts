@@ -63,6 +63,9 @@ export default {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      letterSpacing: {
+        tight: '-0.03em',
+      },
       keyframes: {
         "accordion-down": {
           from: {
@@ -90,29 +93,11 @@ export default {
             transform: "translateY(0)",
           },
         },
-        "twinkle": {
-          "0%, 100%": {
-            opacity: "0.3",
-          },
-          "50%": {
-            opacity: "1",
-          },
-        },
-        "glow": {
-          "0%, 100%": {
-            boxShadow: "0 0 20px hsl(262 83% 58% / 0.3)",
-          },
-          "50%": {
-            boxShadow: "0 0 40px hsl(262 83% 58% / 0.5)",
-          },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
-        "twinkle": "twinkle 3s ease-in-out infinite",
-        "glow": "glow 2s ease-in-out infinite",
       },
     },
   },
