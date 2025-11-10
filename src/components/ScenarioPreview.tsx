@@ -65,7 +65,7 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
             </Button>
           ) : (
             <Button onClick={handlePayment} size="lg" disabled>
-              Оплатить 3000₽ (скоро доступно)
+              Оплатить 400₽ (скоро доступно)
             </Button>
           )}
           <Button variant="outline" onClick={onClose} size="lg">
