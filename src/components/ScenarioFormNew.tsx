@@ -200,7 +200,10 @@ const ScenarioFormNew = () => {
               Создаём сценарий...
             </>
           ) : (
-            "Создать сценарий"
+            <>
+              Создать сценарий
+              <span className="ml-2 opacity-70">• 400₽</span>
+            </>
           )}
         </Button>
       </div>
