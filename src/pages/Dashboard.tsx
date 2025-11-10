@@ -285,7 +285,7 @@ const Dashboard = () => {
                       </>
                     ) : (
                       <Button disabled className="cursor-not-allowed">
-                        Оплатить 3000₽ (скоро доступно)
+                        Оплатить 400₽ (скоро доступно)
                       </Button>
                     )}
                   </div>
