@@ -214,20 +214,6 @@ const ScenarioFormNew = () => {
               <p className="text-xs text-muted-foreground">{getCharCount(formData.product)} символов</p>
             </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="product" className="text-foreground">
-              Продукт/услуга <span className="text-destructive">*</span>
-            </Label>
-            <Textarea
-              id="product"
-              placeholder="чем подробней, тем лучше"
-              value={formData.product}
-              onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-              className="min-h-[80px]"
-              required
-            />
-          </div>
-
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="audience" className="text-foreground">
