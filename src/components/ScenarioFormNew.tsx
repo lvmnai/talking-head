@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Lightbulb, Info } from "lucide-react";
@@ -42,8 +40,6 @@ const ScenarioFormNew = () => {
     tone: "friendly",
     format: "short",
   });
-
-  const getCharCount = (text: string) => text.length;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,6 +137,10 @@ const ScenarioFormNew = () => {
     );
   }
 
+  const buttonText = formData.format === "short" 
+    ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
+    : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";
+
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
       {isLoading && (
@@ -167,11 +167,13 @@ const ScenarioFormNew = () => {
                 <Label htmlFor="sphere" className="text-foreground">
                   Сфера <span className="text-destructive">*</span>
                 </Label>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </button>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
+                  <TooltipContent className="max-w-xs bg-popover text-popover-foreground border-border z-50">
                     <p>Укажите конкретную нишу, в которой работаете. Это поможет создать более релевантный сценарий.</p>
                   </TooltipContent>
                 </Tooltip>
@@ -185,7 +187,7 @@ const ScenarioFormNew = () => {
                 required
                 disabled={isLoading}
               />
-              <p className="text-xs text-muted-foreground">{getCharCount(formData.sphere)} символов</p>
+              <p className="text-xs text-muted-foreground">Рекомендуем: 50+ символов</p>
             </div>
 
             <div className="space-y-2">
@@ -193,11 +195,13 @@ const ScenarioFormNew = () => {
                 <Label htmlFor="product" className="text-foreground">
                   Продукт/услуга <span className="text-destructive">*</span>
                 </Label>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </button>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
+                  <TooltipContent className="max-w-xs bg-popover text-popover-foreground border-border z-50">
                     <p>Подробно опишите ваш продукт или услугу, включая преимущества и результаты.</p>
                   </TooltipContent>
                 </Tooltip>
@@ -211,7 +215,7 @@ const ScenarioFormNew = () => {
                 required
                 disabled={isLoading}
               />
-              <p className="text-xs text-muted-foreground">{getCharCount(formData.product)} символов</p>
+              <p className="text-xs text-muted-foreground">Рекомендуем: 50+ символов</p>
             </div>
 
             <div className="space-y-2">
@@ -219,11 +223,13 @@ const ScenarioFormNew = () => {
                 <Label htmlFor="audience" className="text-foreground">
                   ЦА <span className="text-destructive">*</span>
                 </Label>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </button>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
+                  <TooltipContent className="max-w-xs bg-popover text-popover-foreground border-border z-50">
                     <p>Укажите пол, возраст, образ жизни, интересы и место проживания вашей ЦА.</p>
                   </TooltipContent>
                 </Tooltip>
@@ -237,7 +243,7 @@ const ScenarioFormNew = () => {
                 required
                 disabled={isLoading}
               />
-              <p className="text-xs text-muted-foreground">{getCharCount(formData.audience)} символов • Рекомендуем: 100+ символов</p>
+              <p className="text-xs text-muted-foreground">Рекомендуем: 50+ символов</p>
             </div>
 
             <div className="space-y-2">
@@ -245,11 +251,13 @@ const ScenarioFormNew = () => {
                 <Label htmlFor="problems" className="text-foreground">
                   Проблемы ЦА <span className="text-destructive">*</span>
                 </Label>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    <button type="button" className="focus:outline-none">
+                      <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                    </button>
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
+                  <TooltipContent className="max-w-xs bg-popover text-popover-foreground border-border z-50">
                     <p>Перечислите конкретные боли и проблемы, которые испытывает ваша ЦА.</p>
                   </TooltipContent>
                 </Tooltip>
@@ -263,7 +271,7 @@ const ScenarioFormNew = () => {
                 required
                 disabled={isLoading}
               />
-              <p className="text-xs text-muted-foreground">{getCharCount(formData.problems)} символов</p>
+              <p className="text-xs text-muted-foreground">Рекомендуем: 50+ символов</p>
             </div>
           </TooltipProvider>
         </div>
@@ -275,7 +283,7 @@ const ScenarioFormNew = () => {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover z-50">
                 <SelectItem value="sales">Продажа</SelectItem>
                 <SelectItem value="viral">Виральность</SelectItem>
                 <SelectItem value="both">Всё вместе</SelectItem>
@@ -289,7 +297,7 @@ const ScenarioFormNew = () => {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover z-50">
                 <SelectItem value="friendly">Дружелюбно</SelectItem>
                 <SelectItem value="witty">Остроумно</SelectItem>
                 <SelectItem value="provocative">Провокация</SelectItem>
@@ -303,7 +311,7 @@ const ScenarioFormNew = () => {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover z-50">
                 <SelectItem value="short">Вертикальные до 1 мин</SelectItem>
                 <SelectItem value="long">Длинное до 20 мин</SelectItem>
               </SelectContent>
@@ -315,7 +323,7 @@ const ScenarioFormNew = () => {
           type="submit"
           disabled={isLoading}
           size="lg"
-          className="w-full text-base md:text-lg py-4 md:py-6"
+          className="w-full text-base md:text-lg py-4 md:py-6 font-medium"
         >
           {isLoading ? (
             <>
@@ -323,10 +331,7 @@ const ScenarioFormNew = () => {
               Создаём сценарий...
             </>
           ) : (
-            <>
-              Создать сценарий
-              <span className="ml-2 opacity-70">• 400₽</span>
-            </>
+            buttonText
           )}
         </Button>
       </div>

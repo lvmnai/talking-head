@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
+import logoTalkingHead from "@/assets/logo-talking-head.png";
 
 const Header = () => {
   const location = useLocation();
@@ -30,8 +31,6 @@ const Header = () => {
   
   const navLinks = [
     { name: "Главная", path: "/" },
-    { name: "Примеры", path: "/examples" },
-    { name: "Продукт", path: "/product" },
   ];
 
   return (
@@ -39,8 +38,9 @@ const Header = () => {
       <div className="container mx-auto px-6 sm:px-12 lg:px-16">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex items-center gap-3 group">
+            <img src={logoTalkingHead} alt="Logo" className="w-8 h-8" />
             <span className="text-2xl font-medium text-foreground tracking-tight">
-              talkinghead.ai
+              Говорящая голова
             </span>
           </Link>
 
