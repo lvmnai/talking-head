@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { LogIn } from "lucide-react";
+import { LogIn, Loader2 } from "lucide-react";
 
 interface ScenarioPreviewProps {
   preview: string;
@@ -14,6 +14,7 @@ interface ScenarioPreviewProps {
 const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps) => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -24,11 +25,39 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
     setIsAuthenticated(!!session);
   };
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!isAuthenticated) {
       navigate(`/auth?redirect=/dashboard`);
-    } else {
-      toast.info("Оплата скоро будет доступна");
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
+        body: {
+          scenario_id: scenarioId,
+          amount: 400,
+          description: 'Оплата сценария'
+        }
+      });
+
+      if (error) {
+        console.error('Payment creation error:', error);
+        toast.error('Ошибка создания платежа');
+        return;
+      }
+
+      if (data?.payment_url) {
+        window.location.href = data.payment_url;
+      } else {
+        toast.error('Не удалось получить ссылку на оплату');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Произошла ошибка при создании платежа');
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
@@ -64,8 +93,15 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
               Войти через Google
             </Button>
           ) : (
-            <Button onClick={handlePayment} size="lg" disabled>
-              Оплатить 400₽ (скоро доступно)
+            <Button onClick={handlePayment} size="lg" disabled={isProcessingPayment}>
+              {isProcessingPayment ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Создание платежа...
+                </>
+              ) : (
+                'Оплатить 400₽'
+              )}
             </Button>
           )}
           <Button variant="outline" onClick={onClose} size="lg">

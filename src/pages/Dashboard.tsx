@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2, Copy, Download, LogOut, ChevronDown } from "lucide-react";
+import { Trash2, Copy, Download, LogOut, ChevronDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -49,6 +49,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [payingScenarios, setPayingScenarios] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     checkAuth();
@@ -136,6 +137,41 @@ const Dashboard = () => {
       hour: "2-digit",
       minute: "2-digit",
     }).format(date);
+  };
+
+  const handlePayment = async (scenarioId: string) => {
+    setPayingScenarios(prev => new Set(prev).add(scenarioId));
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
+        body: {
+          scenario_id: scenarioId,
+          amount: 400,
+          description: 'Оплата сценария'
+        }
+      });
+
+      if (error) {
+        console.error('Payment creation error:', error);
+        toast.error('Ошибка создания платежа');
+        return;
+      }
+
+      if (data?.payment_url) {
+        window.location.href = data.payment_url;
+      } else {
+        toast.error('Не удалось получить ссылку на оплату');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Произошла ошибка при создании платежа');
+    } finally {
+      setPayingScenarios(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(scenarioId);
+        return newSet;
+      });
+    }
   };
 
   if (isLoading) {
@@ -284,8 +320,18 @@ const Dashboard = () => {
                         </DropdownMenu>
                       </>
                     ) : (
-                      <Button disabled className="cursor-not-allowed">
-                        Оплатить 400₽ (скоро доступно)
+                      <Button 
+                        onClick={() => handlePayment(scenario.id)} 
+                        disabled={payingScenarios.has(scenario.id)}
+                      >
+                        {payingScenarios.has(scenario.id) ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Создание платежа...
+                          </>
+                        ) : (
+                          'Оплатить 400₽'
+                        )}
                       </Button>
                     )}
                   </div>
