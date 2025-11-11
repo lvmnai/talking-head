@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          payment_url: string | null
+          scenario_id: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          yookassa_payment_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          payment_url?: string | null
+          scenario_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          yookassa_payment_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          payment_url?: string | null
+          scenario_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          yookassa_payment_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
