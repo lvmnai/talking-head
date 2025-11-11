@@ -35,11 +35,11 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b-2 border-border sketch-border-light">
-      <div className="container mx-auto px-6 sm:px-12 lg:px-16">
-        <div className="flex items-center justify-between h-20">
-          <Link to="/" className="flex items-center gap-3 group">
-            <img src={logoTalkingHead} alt="Logo" className="w-8 h-8" />
-            <span className="text-2xl font-medium text-foreground tracking-tight">
+      <div className="container mx-auto px-3 sm:px-6 lg:px-16">
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
+            <img src={logoTalkingHead} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
+            <span className="text-base sm:text-2xl font-medium text-foreground tracking-tight">
               Говорящая голова
             </span>
           </Link>
@@ -58,18 +58,33 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {user ? (
               <>
-                <Button variant="outline" onClick={() => navigate("/dashboard")}>
-                  Личный кабинет
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => navigate("/dashboard")}
+                  className="text-xs sm:text-sm px-2 sm:px-4"
+                >
+                  <span className="hidden sm:inline">Личный кабинет</span>
+                  <span className="sm:hidden">Кабинет</span>
                 </Button>
-                <Button variant="ghost" onClick={handleSignOut}>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="text-xs sm:text-sm px-2 sm:px-4"
+                >
                   Выйти
                 </Button>
               </>
             ) : (
-              <Button onClick={() => navigate("/auth")}>
+              <Button 
+                onClick={() => navigate("/auth")}
+                size="sm"
+                className="text-xs sm:text-sm px-3 sm:px-4"
+              >
                 Войти
               </Button>
             )}
