@@ -243,15 +243,15 @@ const Dashboard = () => {
       <Header />
       <main className="flex-1 container mx-auto px-6 py-8 mt-20">
         {/* User Header */}
-        <div className="sketch-border-light p-6 mb-8">
-          <div className="flex items-center justify-between">
+        <div className="sketch-border-light p-4 md:p-6 mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-medium tracking-tight mb-1">
+              <h1 className="text-xl md:text-2xl font-medium tracking-tight mb-1">
                 {profile?.full_name || "Пользователь"}
               </h1>
-              <p className="text-muted-foreground">{profile?.email}</p>
+              <p className="text-sm md:text-base text-muted-foreground">{profile?.email}</p>
             </div>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button variant="outline" onClick={handleSignOut} size="sm" className="w-full sm:w-auto">
               <LogOut className="mr-2 h-4 w-4" />
               Выйти
             </Button>
@@ -259,10 +259,10 @@ const Dashboard = () => {
         </div>
 
         {/* Scenarios List */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-medium tracking-tight">Мои сценарии</h2>
-            <Button onClick={() => navigate("/")}>Создать новый</Button>
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h2 className="text-xl md:text-2xl font-medium tracking-tight">Мои сценарии</h2>
+            <Button onClick={() => navigate("/")} size="sm" className="w-full sm:w-auto">Создать новый</Button>
           </div>
 
           {scenarios.length === 0 ? (
@@ -273,11 +273,11 @@ const Dashboard = () => {
               <Button onClick={() => navigate("/")}>Создать первый сценарий</Button>
             </div>
           ) : (
-            <div className="grid gap-6">
+            <div className="grid gap-4 md:gap-6">
               {scenarios.map((scenario) => (
-                <div key={scenario.id} className="sketch-border-light p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex flex-wrap gap-2">
+                <div key={scenario.id} className="sketch-border-light p-4 md:p-6">
+                  <div className="flex items-start justify-between mb-4 gap-2">
+                    <div className="flex flex-wrap gap-2 flex-1">
                       {scenario.parameters?.sphere && (
                         <Badge variant="secondary">{scenario.parameters.sphere}</Badge>
                       )}
@@ -318,14 +318,14 @@ const Dashboard = () => {
                     {formatDate(scenario.created_at)}
                   </p>
 
-                  <div className="bg-muted/50 p-4 rounded-none mb-4 max-h-96 overflow-y-auto">
-                    <p className="whitespace-pre-wrap text-base">
+                  <div className="bg-muted/50 p-3 md:p-4 rounded-none mb-4 max-h-60 md:max-h-96 overflow-y-auto">
+                    <p className="whitespace-pre-wrap text-sm md:text-base" style={{ lineHeight: '1.6' }}>
                       {scenario.preview_text}
                       {!scenario.is_paid && "..."}
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     {scenario.is_paid ? (
                       <>
                         <Button
@@ -367,10 +367,11 @@ const Dashboard = () => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </>
-                    ) : (
+                     ) : (
                       <Button 
                         onClick={() => handlePayment(scenario.id)} 
                         disabled={payingScenarios.has(scenario.id)}
+                        className="payment-pulse"
                       >
                         {payingScenarios.has(scenario.id) ? (
                           <>

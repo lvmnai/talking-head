@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { LogIn, Loader2 } from "lucide-react";
+import { LogIn, Loader2, FileText, Clock, Video } from "lucide-react";
 
 interface ScenarioPreviewProps {
   preview: string;
   scenarioId: string;
   onClose: () => void;
 }
+
+const getWordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
+const getReadingTime = (wordCount: number) => Math.ceil(wordCount / 200); // 200 words per minute
+const getVideoTime = (wordCount: number) => Math.ceil(wordCount / 150); // ~150 words per minute for speech
 
 const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps) => {
   const navigate = useNavigate();
@@ -79,18 +84,38 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
     }
   };
 
+  const wordCount = getWordCount(preview);
+  const readingTime = getReadingTime(wordCount);
+  const videoTime = getVideoTime(wordCount);
+
   return (
     <div className="max-w-5xl mx-auto animate-fade-in">
-      <div className="sketch-border-light p-8 transition-all duration-300">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-medium tracking-tight">Превью сценария</h2>
-          <Button variant="ghost" onClick={onClose}>
+      <div className="sketch-border-light p-6 md:p-8 transition-all duration-300">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <h2 className="text-xl md:text-2xl font-medium tracking-tight">Превью сценария</h2>
+          <Button variant="ghost" onClick={onClose} size="sm">
             Закрыть
           </Button>
         </div>
 
-        <div className="bg-muted/50 p-6 rounded-none mb-6 max-h-[1000px] overflow-y-auto">
-          <p className="whitespace-pre-wrap text-base leading-relaxed">
+        {/* Statistics */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <FileText className="h-3 w-3" />
+            {wordCount} слов
+          </Badge>
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            ~{readingTime} мин чтения
+          </Badge>
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <Video className="h-3 w-3" />
+            ~{videoTime} мин видео
+          </Badge>
+        </div>
+
+        <div className="bg-muted/50 p-4 md:p-6 rounded-none mb-6 max-h-[600px] md:max-h-[800px] overflow-y-auto">
+          <p className="whitespace-pre-wrap text-sm md:text-base leading-relaxed" style={{ lineHeight: '1.6' }}>
             {preview}
             <span className="text-muted-foreground">...</span>
           </p>
@@ -104,14 +129,14 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
           </div>
         )}
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
           {!isAuthenticated ? (
-            <Button onClick={() => navigate("/auth?redirect=/dashboard")} size="lg">
+            <Button onClick={() => navigate("/auth?redirect=/dashboard")} size="lg" className="w-full sm:w-auto">
               <LogIn className="mr-2 h-4 w-4" />
               Войти через Google
             </Button>
           ) : (
-            <Button onClick={handlePayment} size="lg" disabled={isProcessingPayment}>
+            <Button onClick={handlePayment} size="lg" disabled={isProcessingPayment} className="w-full sm:w-auto payment-pulse">
               {isProcessingPayment ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -122,7 +147,7 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
               )}
             </Button>
           )}
-          <Button variant="outline" onClick={onClose} size="lg">
+          <Button variant="outline" onClick={onClose} size="lg" className="w-full sm:w-auto">
             Создать новый сценарий
           </Button>
         </div>

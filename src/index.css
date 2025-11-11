@@ -114,4 +114,25 @@
   .scroll-fade-in-delay-3 {
     transition-delay: 0.3s;
   }
+
+  .payment-pulse {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--foreground) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--foreground) / 0);
+    }
+  }
+
+  .hover-scale {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
 }

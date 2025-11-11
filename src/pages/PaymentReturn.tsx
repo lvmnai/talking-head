@@ -4,12 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import confetti from "canvas-confetti";
 
 const PaymentReturn = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [message, setMessage] = useState("");
+  const [countdown, setCountdown] = useState(5);
+  const [autoRedirect, setAutoRedirect] = useState(true);
 
   useEffect(() => {
     const checkPaymentStatus = async () => {
@@ -35,6 +39,31 @@ const PaymentReturn = () => {
         if (scenario?.is_paid) {
           setStatus("success");
           setMessage("Оплата успешно завершена! Полный текст сценария доступен в личном кабинете.");
+          
+          // Trigger confetti
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+          
+          setTimeout(() => {
+            confetti({
+              particleCount: 50,
+              angle: 60,
+              spread: 55,
+              origin: { x: 0 }
+            });
+          }, 250);
+          
+          setTimeout(() => {
+            confetti({
+              particleCount: 50,
+              angle: 120,
+              spread: 55,
+              origin: { x: 1 }
+            });
+          }, 400);
         } else {
           setStatus("error");
           setMessage("Оплата не завершена. Попробуйте еще раз или обратитесь в поддержку.");
@@ -49,35 +78,66 @@ const PaymentReturn = () => {
     checkPaymentStatus();
   }, [searchParams]);
 
+  // Auto-redirect countdown for success
+  useEffect(() => {
+    if (status === "success" && autoRedirect && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    } else if (status === "success" && autoRedirect && countdown === 0) {
+      navigate("/dashboard");
+    }
+  }, [status, countdown, navigate, autoRedirect]);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             {status === "loading" && (
-              <Loader2 className="h-16 w-16 text-primary animate-spin" />
+              <div className="space-y-4 w-full">
+                <Loader2 className="h-16 w-16 text-primary animate-spin mx-auto" />
+                <Progress value={33} className="w-full" />
+              </div>
             )}
             {status === "success" && (
-              <CheckCircle2 className="h-16 w-16 text-green-500" />
+              <CheckCircle2 className="h-16 w-16 text-green-500 animate-scale-in" />
             )}
             {status === "error" && (
-              <XCircle className="h-16 w-16 text-destructive" />
+              <XCircle className="h-16 w-16 text-destructive animate-scale-in" />
             )}
           </div>
-          <CardTitle className="text-2xl">
+          <CardTitle className="text-xl md:text-2xl">
             {status === "loading" && "Проверяем статус оплаты..."}
             {status === "success" && "Оплата успешна!"}
             {status === "error" && "Ошибка оплаты"}
           </CardTitle>
-          <CardDescription className="text-base mt-2">
+          <CardDescription className="text-sm md:text-base mt-2">
             {message}
           </CardDescription>
+          {status === "success" && autoRedirect && (
+            <CardDescription className="text-sm mt-4">
+              Автоматический переход через {countdown} сек...
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           {status === "success" && (
-            <Button onClick={() => navigate("/dashboard")} className="w-full">
-              Перейти в личный кабинет
-            </Button>
+            <>
+              <Button onClick={() => navigate("/dashboard")} className="w-full">
+                Перейти в личный кабинет
+              </Button>
+              <Button 
+                onClick={() => setAutoRedirect(false)} 
+                variant="ghost" 
+                size="sm"
+                className="w-full"
+              >
+                Отменить автопереход
+              </Button>
+            </>
           )}
           {status === "error" && (
             <>
@@ -90,6 +150,14 @@ const PaymentReturn = () => {
                 className="w-full"
               >
                 На главную
+              </Button>
+              <Button 
+                onClick={() => window.open("mailto:support@talking-head.ru")} 
+                variant="ghost" 
+                size="sm"
+                className="w-full"
+              >
+                Связаться с поддержкой
               </Button>
             </>
           )}
