@@ -98,6 +98,24 @@ serve(async (req) => {
         user_id: user.id,
         scenario_id,
       },
+      receipt: {
+        customer: {
+          email: user.email ?? undefined,
+        },
+        items: [
+          {
+            description: description || 'Оплата сценария',
+            quantity: '1.00',
+            amount: {
+              value: amount.toFixed(2),
+              currency: 'RUB',
+            },
+            vat_code: 1,
+            payment_mode: 'full_payment',
+            payment_subject: 'service',
+          },
+        ],
+      },
     };
 
     const yookassaAuthHeader = 'Basic ' + btoa(`${shopId}:${secretKey}`);
