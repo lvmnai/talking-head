@@ -12,6 +12,16 @@ interface ScenarioPreviewProps {
   onClose: () => void;
 }
 
+interface BonusBalance {
+  balance: number;
+  user_id: string;
+}
+
+interface Referral {
+  status: string;
+  first_payment_at: string | null;
+}
+
 const getWordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
 const getReadingTime = (wordCount: number) => Math.ceil(wordCount / 200); // 200 words per minute
 const getVideoTime = (wordCount: number) => Math.ceil(wordCount / 150); // ~150 words per minute for speech
@@ -20,6 +30,10 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [bonusBalance, setBonusBalance] = useState(0);
+  const [useBonus, setUseBonus] = useState(false);
+  const [isReferral, setIsReferral] = useState(false);
+  const basePrice = 10;
 
   useEffect(() => {
     checkAuth();
@@ -28,6 +42,28 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     setIsAuthenticated(!!session);
+    
+    if (session) {
+      // Получаем баланс бонусов
+      const { data: bonusData } = await supabase
+        .from('bonus_balance')
+        .select('balance')
+        .eq('user_id', session.user.id)
+        .single();
+      
+      if (bonusData) {
+        setBonusBalance(bonusData.balance);
+      }
+
+      // Проверяем является ли пользователь приглашенным
+      const { data: referralData } = await supabase
+        .from('referrals')
+        .select('status, first_payment_at')
+        .eq('referred_id', session.user.id)
+        .maybeSingle();
+      
+      setIsReferral(!!referralData && !referralData.first_payment_at);
+    }
   };
 
   const handlePayment = async () => {
@@ -51,8 +87,9 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
       const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
         body: {
           scenario_id: scenarioId,
-          amount: 10,
-          description: 'Оплата сценария'
+          amount: basePrice,
+          description: 'Оплата сценария',
+          use_bonus: useBonus
         },
         headers: {
           Authorization: `Bearer ${session.access_token}`
@@ -71,7 +108,20 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
         return;
       }
 
+      if (data?.paid_with_bonus) {
+        toast.success(`Сценарий оплачен бонусами! Использовано: ${data.bonus_used}₽`);
+        onClose();
+        navigate('/dashboard');
+        return;
+      }
+
       if (data?.payment_url) {
+        if (data.discount_applied) {
+          toast.success('Применена скидка 15% для приглашенного пользователя!');
+        }
+        if (data.bonus_used > 0) {
+          toast.success(`Использовано бонусов: ${data.bonus_used}₽`);
+        }
         window.location.href = data.payment_url;
       } else {
         toast.error('Не удалось получить ссылку на оплату');
@@ -82,6 +132,22 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
     } finally {
       setIsProcessingPayment(false);
     }
+  };
+
+  const calculateFinalPrice = () => {
+    let price = basePrice;
+    
+    // Применяем скидку для приглашенных
+    if (isReferral) {
+      price = Math.round(price * 0.85); // 15% скидка
+    }
+    
+    // Вычитаем бонусы если выбрано
+    if (useBonus && bonusBalance > 0) {
+      price = Math.max(0, price - bonusBalance);
+    }
+    
+    return price;
   };
 
   const wordCount = getWordCount(preview);
@@ -129,6 +195,39 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
           </div>
         )}
 
+        {isAuthenticated && bonusBalance > 0 && (
+          <div className="mb-4 p-4 bg-primary/10 rounded-none border-2 border-primary/20">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium">Доступно бонусов: {bonusBalance}₽</p>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={useBonus}
+                  onChange={(e) => setUseBonus(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm">Использовать</span>
+              </label>
+            </div>
+            {useBonus && (
+              <p className="text-xs text-muted-foreground">
+                Будет использовано: {Math.min(bonusBalance, calculateFinalPrice())}₽
+              </p>
+            )}
+          </div>
+        )}
+
+        {isAuthenticated && isReferral && (
+          <div className="mb-4 p-4 bg-green-500/10 rounded-none border-2 border-green-500/20">
+            <p className="text-sm font-medium text-green-700 dark:text-green-300">
+              🎉 Скидка 15% на первую покупку!
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Цена со скидкой: {Math.round(basePrice * 0.85)}₽ (вместо {basePrice}₽)
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
           {!isAuthenticated ? (
             <Button onClick={() => navigate("/auth?redirect=/dashboard")} size="lg" className="w-full sm:w-auto">
@@ -143,7 +242,9 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
                   Создание платежа...
                 </>
               ) : (
-                'Оплатить 10₽'
+                <>
+                  {calculateFinalPrice() === 0 ? 'Оплатить бонусами' : `Оплатить ${calculateFinalPrice()}₽`}
+                </>
               )}
             </Button>
           )}

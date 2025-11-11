@@ -46,10 +46,104 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
     
-    const { scenario_id, amount, description } = await req.json();
+    const { scenario_id, amount, description, use_bonus } = await req.json();
 
     if (!scenario_id || !amount) {
       throw new Error('Missing required fields: scenario_id, amount');
+    }
+
+    let finalAmount = amount;
+    let bonusUsed = 0;
+
+    // Проверяем является ли пользователь приглашенным и первая ли это покупка
+    const { data: referralData } = await supabaseAdmin
+      .from('referrals')
+      .select('status, first_payment_at')
+      .eq('referred_id', user.id)
+      .maybeSingle();
+
+    // Применяем 15% скидку для первой покупки приглашенных
+    if (referralData && !referralData.first_payment_at) {
+      finalAmount = Math.round(amount * 0.85); // 15% скидка
+      console.log('Applied 15% referral discount:', { original: amount, discounted: finalAmount });
+    }
+
+    // Если пользователь хочет использовать бонусы
+    if (use_bonus) {
+      const { data: bonusData } = await supabaseAdmin
+        .from('bonus_balance')
+        .select('balance')
+        .eq('user_id', user.id)
+        .single();
+
+      if (bonusData && bonusData.balance > 0) {
+        // Используем бонусы для оплаты (максимум до полной суммы)
+        bonusUsed = Math.min(bonusData.balance, finalAmount);
+        finalAmount -= bonusUsed;
+        console.log('Using bonus:', { available: bonusData.balance, used: bonusUsed, remaining: finalAmount });
+      }
+    }
+
+    // Если вся сумма оплачена бонусами
+    if (finalAmount <= 0) {
+      // Получаем текущий баланс
+      const { data: currentBonus } = await supabaseAdmin
+        .from('bonus_balance')
+        .select('balance, total_spent')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!currentBonus) {
+        throw new Error('Bonus balance not found');
+      }
+
+      // Списываем бонусы
+      await supabaseAdmin
+        .from('bonus_balance')
+        .update({
+          balance: currentBonus.balance - bonusUsed,
+          total_spent: currentBonus.total_spent + bonusUsed
+        })
+        .eq('user_id', user.id);
+
+      // Создаем транзакцию
+      await supabaseAdmin
+        .from('bonus_transactions')
+        .insert({
+          user_id: user.id,
+          amount: -bonusUsed,
+          type: 'spend',
+          source: 'payment',
+          description: 'Оплата сценария бонусами'
+        });
+
+      // Обновляем сценарий как оплаченный
+      await supabaseAdmin
+        .from('scenarios')
+        .update({ is_paid: true })
+        .eq('id', scenario_id);
+
+      // Обновляем статус реферала если это первая покупка
+      if (referralData && !referralData.first_payment_at) {
+        await supabaseAdmin
+          .from('referrals')
+          .update({
+            status: 'paid',
+            first_payment_at: new Date().toISOString()
+          })
+          .eq('referred_id', user.id);
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          paid_with_bonus: true,
+          bonus_used: bonusUsed
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // Create payment in database first (using service role)
@@ -58,7 +152,7 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         scenario_id,
-        amount,
+        amount: finalAmount + bonusUsed, // Сохраняем полную сумму до применения бонусов
         currency: 'RUB',
         description: description || 'Оплата сценария',
         status: 'pending',
@@ -84,7 +178,7 @@ serve(async (req) => {
 
     const yookassaPayload = {
       amount: {
-        value: amount.toFixed(2),
+        value: finalAmount.toFixed(2),
         currency: 'RUB',
       },
       capture: true,
@@ -107,7 +201,7 @@ serve(async (req) => {
             description: description || 'Оплата сценария',
             quantity: '1.00',
             amount: {
-              value: amount.toFixed(2),
+              value: finalAmount.toFixed(2),
               currency: 'RUB',
             },
             vat_code: 1,
@@ -161,11 +255,44 @@ serve(async (req) => {
       console.error('Payment update error:', updateError);
     }
 
+    // Если использовались бонусы, списываем их
+    if (bonusUsed > 0) {
+      // Получаем текущий баланс
+      const { data: currentBonus } = await supabaseAdmin
+        .from('bonus_balance')
+        .select('balance, total_spent')
+        .eq('user_id', user.id)
+        .single();
+
+      if (currentBonus) {
+        await supabaseAdmin
+          .from('bonus_balance')
+          .update({
+            balance: currentBonus.balance - bonusUsed,
+            total_spent: currentBonus.total_spent + bonusUsed
+          })
+          .eq('user_id', user.id);
+
+        await supabaseAdmin
+          .from('bonus_transactions')
+          .insert({
+            user_id: user.id,
+            amount: -bonusUsed,
+            type: 'spend',
+            source: 'payment',
+            payment_id: paymentData.id,
+            description: `Частичная оплата бонусами: ${bonusUsed}₽`
+          });
+      }
+    }
+
     return new Response(
       JSON.stringify({
         payment_id: paymentData.id,
         payment_url: yookassaData.confirmation.confirmation_url,
         yookassa_payment_id: yookassaData.id,
+        bonus_used: bonusUsed,
+        discount_applied: referralData && !referralData.first_payment_at,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -52,6 +52,10 @@ const Dashboard = () => {
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [payingScenarios, setPayingScenarios] = useState<Set<string>>(new Set());
+  const [bonusBalance, setBonusBalance] = useState(0);
+  const [useBonusMap, setUseBonusMap] = useState<Map<string, boolean>>(new Map());
+  const [isReferral, setIsReferral] = useState(false);
+  const basePrice = 10;
 
   useEffect(() => {
     checkAuth();
@@ -115,6 +119,26 @@ const Dashboard = () => {
     if (scenariosData) {
       setScenarios(scenariosData);
     }
+
+    // Получаем баланс бонусов
+    const { data: bonusData } = await supabase
+      .from('bonus_balance')
+      .select('balance')
+      .eq('user_id', session.user.id)
+      .single();
+    
+    if (bonusData) {
+      setBonusBalance(bonusData.balance);
+    }
+
+    // Проверяем является ли пользователь приглашенным
+    const { data: referralData } = await supabase
+      .from('referrals')
+      .select('status, first_payment_at')
+      .eq('referred_id', session.user.id)
+      .maybeSingle();
+    
+    setIsReferral(!!referralData && !referralData.first_payment_at);
 
     setIsLoading(false);
   };
@@ -184,11 +208,14 @@ const Dashboard = () => {
         return;
       }
 
+      const useBonus = useBonusMap.get(scenarioId) || false;
+
       const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
         body: {
           scenario_id: scenarioId,
-          amount: 10,
-          description: 'Оплата сценария'
+          amount: basePrice,
+          description: 'Оплата сценария',
+          use_bonus: useBonus
         },
         headers: {
           Authorization: `Bearer ${session.access_token}`
@@ -207,7 +234,20 @@ const Dashboard = () => {
         return;
       }
 
+      if (data?.paid_with_bonus) {
+        toast.success(`Сценарий оплачен бонусами! Использовано: ${data.bonus_used}₽`);
+        // Обновляем список сценариев
+        await checkAuth();
+        return;
+      }
+
       if (data?.payment_url) {
+        if (data.discount_applied) {
+          toast.success('Применена скидка 15% для приглашенного пользователя!');
+        }
+        if (data.bonus_used > 0) {
+          toast.success(`Использовано бонусов: ${data.bonus_used}₽`);
+        }
         window.location.href = data.payment_url;
       } else {
         toast.error('Не удалось получить ссылку на оплату');
@@ -222,6 +262,30 @@ const Dashboard = () => {
         return newSet;
       });
     }
+  };
+
+  const calculateFinalPrice = (scenarioId: string) => {
+    let price = basePrice;
+    
+    // Применяем скидку для приглашенных
+    if (isReferral) {
+      price = Math.round(price * 0.85); // 15% скидка
+    }
+    
+    // Вычитаем бонусы если выбрано
+    if (useBonusMap.get(scenarioId) && bonusBalance > 0) {
+      price = Math.max(0, price - bonusBalance);
+    }
+    
+    return price;
+  };
+
+  const toggleBonusUsage = (scenarioId: string) => {
+    setUseBonusMap(prev => {
+      const newMap = new Map(prev);
+      newMap.set(scenarioId, !newMap.get(scenarioId));
+      return newMap;
+    });
   };
 
   if (isLoading) {
@@ -377,20 +441,49 @@ const Dashboard = () => {
                         </DropdownMenu>
                       </>
                      ) : (
-                      <Button 
-                        onClick={() => handlePayment(scenario.id)} 
-                        disabled={payingScenarios.has(scenario.id)}
-                        className="payment-pulse"
-                      >
-                        {payingScenarios.has(scenario.id) ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Создание платежа...
-                          </>
-                        ) : (
-                          'Оплатить 10₽'
+                      <>
+                        {bonusBalance > 0 && (
+                          <div className="mb-3 p-3 bg-primary/10 rounded-none border border-primary/20">
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs font-medium">Доступно: {bonusBalance}₽</p>
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={useBonusMap.get(scenario.id) || false}
+                                  onChange={() => toggleBonusUsage(scenario.id)}
+                                  className="w-4 h-4"
+                                />
+                                <span className="text-xs">Использовать</span>
+                              </label>
+                            </div>
+                          </div>
                         )}
-                      </Button>
+                        {isReferral && (
+                          <div className="mb-3 p-2 bg-green-500/10 rounded-none border border-green-500/20">
+                            <p className="text-xs font-medium text-green-700 dark:text-green-300">
+                              🎉 Скидка 15%: {Math.round(basePrice * 0.85)}₽
+                            </p>
+                          </div>
+                        )}
+                        <Button 
+                          onClick={() => handlePayment(scenario.id)} 
+                          disabled={payingScenarios.has(scenario.id)}
+                          className="payment-pulse w-full"
+                        >
+                          {payingScenarios.has(scenario.id) ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Создание платежа...
+                            </>
+                          ) : (
+                            <>
+                              {calculateFinalPrice(scenario.id) === 0 
+                                ? 'Оплатить бонусами' 
+                                : `Оплатить ${calculateFinalPrice(scenario.id)}₽`}
+                            </>
+                          )}
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>

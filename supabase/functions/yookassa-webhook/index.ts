@@ -70,22 +70,24 @@ serve(async (req) => {
       // Check if user was referred and calculate bonus for referrer
       const { data: referral } = await supabaseClient
         .from('referrals')
-        .select('referrer_id, status')
+        .select('referrer_id, status, first_payment_at')
         .eq('referred_id', payment.user_id)
-        .single();
+        .maybeSingle();
 
       if (referral) {
         const bonusAmount = (parseFloat(payment.amount) * 0.25).toFixed(2); // 25% комиссия
 
         // Update referral status on first payment
-        if (referral.status === 'registered') {
+        if (!referral.first_payment_at) {
           await supabaseClient
             .from('referrals')
             .update({
-              status: 'converted',
+              status: 'paid',
               first_payment_at: new Date().toISOString()
             })
             .eq('referred_id', payment.user_id);
+          
+          console.log(`First payment detected for referred user ${payment.user_id}, updated referral status to 'paid'`);
         }
 
         // Add bonus to referrer
