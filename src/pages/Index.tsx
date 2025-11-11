@@ -4,12 +4,14 @@ import ScenarioFormNew from "@/components/ScenarioFormNew";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import verticalVideoSketch from "@/assets/vertical-video-sketch.png";
 import horizontalVideoSketch from "@/assets/horizontal-video-sketch.png";
+import { useState } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 const Index = () => {
   const hero = useScrollAnimation();
@@ -19,6 +21,7 @@ const Index = () => {
   const content = useScrollAnimation();
   const examples = useScrollAnimation();
   const faq = useScrollAnimation();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const faqData = [
     {
@@ -136,11 +139,12 @@ const Index = () => {
             {[
               { image: "/examples/example-1.png", alt: "Психологический стриптиз" },
               { image: "/examples/example-2.png", alt: "Нарушение сна" },
-              { image: "/examples/example-3.png", alt: "Гении воруют: секреты креатива Apple, Nike, Dyson" },
+              { image: "/examples/example-3.png", alt: "Гenii воруют: секреты креатива Apple, Nike, Dyson" },
             ].map((item, index) => (
               <div
                 key={index}
-                className="sketch-border p-4 card-hover bg-background"
+                className="sketch-border p-4 card-hover bg-background cursor-pointer"
+                onClick={() => setSelectedImage(item.image)}
               >
                 <img 
                   src={item.image} 
@@ -150,6 +154,18 @@ const Index = () => {
               </div>
             ))}
           </div>
+          
+          <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+            <DialogContent className="max-w-4xl w-full p-0 overflow-hidden">
+              {selectedImage && (
+                <img 
+                  src={selectedImage} 
+                  alt="Увеличенный пример"
+                  className="w-full h-auto"
+                />
+              )}
+            </DialogContent>
+          </Dialog>
         </section>
 
         {/* FAQ Section */}
