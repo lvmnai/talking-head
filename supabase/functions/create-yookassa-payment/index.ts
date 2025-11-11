@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -19,17 +20,17 @@ serve(async (req) => {
       throw new Error('No authorization header provided');
     }
 
+    // Извлекаем токен из заголовка
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    console.log('Token prefix:', token.substring(0, 20) + '...');
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    // Используем getUser с явным токеном
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     
     console.log('User check:', { userId: user?.id, error: userError?.message });
     
@@ -72,7 +73,7 @@ serve(async (req) => {
     }
 
     const idempotenceKey = crypto.randomUUID();
-    const returnUrl = `${req.headers.get('origin')}/dashboard?payment_id=${paymentData.id}`;
+    const returnUrl = 'https://talking-head.ru/dashboard';
 
     const yookassaPayload = {
       amount: {
@@ -106,8 +107,18 @@ serve(async (req) => {
 
     if (!yookassaResponse.ok) {
       const errorText = await yookassaResponse.text();
-      console.error('YooKassa error:', errorText);
-      throw new Error(`YooKassa API error: ${yookassaResponse.status}`);
+      console.error('YooKassa error:', { status: yookassaResponse.status, body: errorText });
+      
+      let errorMessage = `YooKassa API error: ${yookassaResponse.status}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.description || errorData.error_description || errorMessage;
+      } catch (e) {
+        // Если не JSON, используем текст как есть
+        if (errorText) errorMessage = errorText;
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const yookassaData = await yookassaResponse.json();

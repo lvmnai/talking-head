@@ -34,17 +34,35 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
     setIsProcessingPayment(true);
     
     try {
+      // Получаем сессию для передачи access_token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error('Необходимо войти в систему');
+        navigate('/auth?redirect=/dashboard');
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
         body: {
           scenario_id: scenarioId,
           amount: 10,
           description: 'Оплата сценария'
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
         }
       });
 
       if (error) {
         console.error('Payment creation error:', error);
-        toast.error('Ошибка создания платежа');
+        toast.error(error.message || 'Ошибка создания платежа');
+        return;
+      }
+
+      if (data?.error) {
+        console.error('Payment API error:', data.error);
+        toast.error(data.error);
         return;
       }
 

@@ -1,1 +1,7 @@
 project_id = "embyykrgrvmwrukpxelq"
+
+[functions.create-yookassa-payment]
+verify_jwt = true
+
+[functions.yookassa-webhook]
+verify_jwt = false
