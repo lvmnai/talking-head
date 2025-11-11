@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      bonus_balance: {
+        Row: {
+          balance: number
+          total_earned: number
+          total_spent: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bonus_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          payment_id: string | null
+          source: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          payment_id?: string | null
+          source: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          payment_id?: string | null
+          source?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bonus_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -88,6 +153,57 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          clicks: number | null
+          code: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          clicks?: number | null
+          code: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          clicks?: number | null
+          code?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string | null
+          first_payment_at: string | null
+          id: string
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          first_payment_at?: string | null
+          id?: string
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          first_payment_at?: string | null
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       scenarios: {
         Row: {
           created_at: string | null
@@ -152,12 +268,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_referral_clicks: {
+        Args: { ref_code: string }
+        Returns: undefined
       }
     }
     Enums: {
