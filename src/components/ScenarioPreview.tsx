@@ -37,7 +37,7 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
       const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
         body: {
           scenario_id: scenarioId,
-          amount: 400,
+          amount: 10,
           description: 'Оплата сценария'
         }
       });
@@ -100,7 +100,7 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
                   Создание платежа...
                 </>
               ) : (
-                'Оплатить 400₽'
+                'Оплатить 10₽'
               )}
             </Button>
           )}

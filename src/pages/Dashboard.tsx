@@ -146,7 +146,7 @@ const Dashboard = () => {
       const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
         body: {
           scenario_id: scenarioId,
-          amount: 400,
+          amount: 10,
           description: 'Оплата сценария'
         }
       });
@@ -330,7 +330,7 @@ const Dashboard = () => {
                             Создание платежа...
                           </>
                         ) : (
-                          'Оплатить 400₽'
+                          'Оплатить 10₽'
                         )}
                       </Button>
                     )}
