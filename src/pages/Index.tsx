@@ -123,7 +123,7 @@ const Index = () => {
         </section>
 
         {/* Examples Section */}
-        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-16 mt-16">
+        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-16 mt-8">
           <div ref={examples.ref} className={`scroll-fade-in ${examples.isVisible ? 'visible' : ''}`}>
             <h2 className="text-4xl md:text-6xl font-medium text-center mb-8 text-foreground tracking-tight leading-tight">
               Посмотри примеры
@@ -132,37 +132,21 @@ const Index = () => {
               У нас нейросети пишут на уровне лучших сценаристов и креаторов. Потому что мы сами такие
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
-              { 
-                title: "Продажи", 
-                subtitle: "(остеопатия)", 
-                desc: "Конвертируем просмотры в записи на приём",
-                example: "Вход: Остеопат для женщин после родов\nРезультат: 5 рилсов с хуками про боль в спине + прямой призыв к записи"
-              },
-              { 
-                title: "Виральность", 
-                subtitle: "(психология)", 
-                desc: "Миллионы просмотров и вовлечённая аудитория",
-                example: "Вход: Психолог про токсичные отношения\nРезультат: Провокационный хук + эмоциональная история + 2M просмотров"
-              },
-              { 
-                title: "Длинные, всё вместе", 
-                subtitle: "(маркетинг)", 
-                desc: "Продажи + охваты в одном видео",
-                example: "Вход: Маркетолог про таргет\nРезультат: 15-минутный разбор кейса + структура + 3 идеи обложки"
-              },
+              { image: "/examples/example-1.png", alt: "Психологический стриптиз" },
+              { image: "/examples/example-2.png", alt: "Нарушение сна" },
+              { image: "/examples/example-3.png", alt: "Гении воруют: секреты креатива Apple, Nike, Dyson" },
             ].map((item, index) => (
               <div
                 key={index}
-                className="text-left p-8 sketch-border card-hover"
+                className="sketch-border p-4 card-hover bg-background"
               >
-                <h3 className="text-2xl font-medium mb-2 text-foreground">{item.title}</h3>
-                <p className="text-sm text-foreground/60 mb-4">{item.subtitle}</p>
-                <p className="text-foreground/70 mb-6">{item.desc}</p>
-                <div className="bg-muted/30 p-4 rounded-none border border-border/30">
-                  <p className="text-sm text-foreground/70 whitespace-pre-line leading-relaxed">{item.example}</p>
-                </div>
+                <img 
+                  src={item.image} 
+                  alt={item.alt}
+                  className="w-full h-auto rounded-sm"
+                />
               </div>
             ))}
           </div>
