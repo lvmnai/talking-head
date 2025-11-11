@@ -24,6 +24,7 @@ serve(async (req) => {
     const token = authHeader.replace(/^Bearer\s+/i, '');
     console.log('Token prefix:', token.substring(0, 20) + '...');
 
+    // Используем anon key для проверки пользователя
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
@@ -39,14 +40,20 @@ serve(async (req) => {
       throw new Error(`Unauthorized: ${userError?.message || 'No user found'}`);
     }
 
+    // Используем service role для операций с БД
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    
     const { scenario_id, amount, description } = await req.json();
 
     if (!scenario_id || !amount) {
       throw new Error('Missing required fields: scenario_id, amount');
     }
 
-    // Create payment in database first
-    const { data: paymentData, error: paymentError } = await supabaseClient
+    // Create payment in database first (using service role)
+    const { data: paymentData, error: paymentError } = await supabaseAdmin
       .from('payments')
       .insert({
         user_id: user.id,
@@ -124,7 +131,7 @@ serve(async (req) => {
     const yookassaData = await yookassaResponse.json();
 
     // Update payment with YooKassa payment ID and URL
-    const { error: updateError } = await supabaseClient
+    const { error: updateError } = await supabaseAdmin
       .from('payments')
       .update({
         yookassa_payment_id: yookassaData.id,
