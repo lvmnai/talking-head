@@ -66,18 +66,18 @@ const Index = () => {
             </p>
             
             <div ref={cards.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16 scroll-fade-in ${cards.isVisible ? 'visible' : ''}`}>
-              <div className="sketch-border p-12 card-hover scroll-fade-in-delay-1">
-                <div className="flex justify-center mb-6">
+              <div className="sketch-border p-6 card-hover scroll-fade-in-delay-1">
+                <div className="flex justify-center mb-4">
                   <img src={verticalVideoSketch} alt="Вертикальное видео" className="w-32 h-auto" />
                 </div>
-                <h3 className="font-medium text-xl mb-4 text-foreground">TikTok, Shorts, Instagram (1 мин)</h3>
+                <h3 className="font-medium text-xl mb-3 text-foreground">TikTok, Shorts, Instagram (1 мин)</h3>
                 <p className="text-foreground/70">Получишь 5 сценариев, по 3 креативных хука в каждом</p>
               </div>
-              <div className="sketch-border p-12 card-hover scroll-fade-in-delay-2">
-                <div className="flex justify-center mb-6">
+              <div className="sketch-border p-6 card-hover scroll-fade-in-delay-2">
+                <div className="flex justify-center mb-4">
                   <img src={horizontalVideoSketch} alt="Горизонтальное видео" className="w-48 h-auto" />
                 </div>
-                <h3 className="font-medium text-xl mb-4 text-foreground">YouTube, Дзен (до 20 мин)</h3>
+                <h3 className="font-medium text-xl mb-3 text-foreground">YouTube, Дзен (до 20 мин)</h3>
                 <p className="text-foreground/70">Получишь 3 заголовка, 3 идеи обложки и сценарий</p>
               </div>
             </div>
