@@ -12,20 +12,30 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get('Authorization');
+    console.log('Authorization header:', authHeader ? 'present' : 'missing');
+    
+    if (!authHeader) {
+      throw new Error('No authorization header provided');
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
       }
     );
 
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     
+    console.log('User check:', { userId: user?.id, error: userError?.message });
+    
     if (userError || !user) {
-      throw new Error('Unauthorized');
+      console.error('Auth error:', userError);
+      throw new Error(`Unauthorized: ${userError?.message || 'No user found'}`);
     }
 
     const { scenario_id, amount, description } = await req.json();
@@ -82,14 +92,14 @@ serve(async (req) => {
       },
     };
 
-    const authHeader = 'Basic ' + btoa(`${shopId}:${secretKey}`);
+    const yookassaAuthHeader = 'Basic ' + btoa(`${shopId}:${secretKey}`);
 
     const yookassaResponse = await fetch('https://api.yookassa.ru/v3/payments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Idempotence-Key': idempotenceKey,
-        'Authorization': authHeader,
+        'Authorization': yookassaAuthHeader,
       },
       body: JSON.stringify(yookassaPayload),
     });
