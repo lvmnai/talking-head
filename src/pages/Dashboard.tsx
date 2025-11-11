@@ -27,6 +27,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { exportScenario, ExportFormat } from "@/lib/exportUtils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ReferralSection } from "@/components/ReferralSection";
 
 interface Profile {
   id: string;
@@ -258,12 +260,19 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Scenarios List */}
-        <div className="space-y-4 md:space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h2 className="text-xl md:text-2xl font-medium tracking-tight">Мои сценарии</h2>
-            <Button onClick={() => navigate("/")} size="sm" className="w-full sm:w-auto">Создать новый</Button>
-          </div>
+        {/* Tabs */}
+        <Tabs defaultValue="scenarios" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="scenarios">Мои сценарии</TabsTrigger>
+            <TabsTrigger value="referral">Реферальная программа</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="scenarios">
+            <div className="space-y-4 md:space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <h2 className="text-xl md:text-2xl font-medium tracking-tight">Мои сценарии</h2>
+                <Button onClick={() => navigate("/")} size="sm" className="w-full sm:w-auto">Создать новый</Button>
+              </div>
 
           {scenarios.length === 0 ? (
             <div className="sketch-border-light p-12 text-center">
@@ -385,10 +394,16 @@ const Dashboard = () => {
                     )}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="referral">
+          <ReferralSection />
+        </TabsContent>
+      </Tabs>
       </main>
       <Footer />
     </div>

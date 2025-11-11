@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.yookassa-webhook]
 verify_jwt = false
+
+[functions.track-referral]
+verify_jwt = false

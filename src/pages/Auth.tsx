@@ -10,24 +10,51 @@ const Auth = () => {
   const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const refCode = searchParams.get("ref");
 
   useEffect(() => {
+    // Save referral code to localStorage
+    if (refCode) {
+      localStorage.setItem('referral_code', refCode);
+      // Track click
+      supabase.functions.invoke('track-referral', {
+        body: { code: refCode }
+      }).catch(err => console.error('Error tracking referral:', err));
+    }
+
     // Проверяем, авторизован ли пользователь
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        // If user just signed in with referral code, link them
+        const savedRefCode = localStorage.getItem('referral_code');
+        if (savedRefCode) {
+          supabase.functions.invoke('track-referral', {
+            body: { code: savedRefCode, userId: session.user.id }
+          }).then(() => {
+            localStorage.removeItem('referral_code');
+          }).catch(err => console.error('Error linking referral:', err));
+        }
         navigate(redirectTo);
       }
     });
 
     // Слушаем изменения авторизации
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
+        // Link referral if exists
+        const savedRefCode = localStorage.getItem('referral_code');
+        if (savedRefCode) {
+          await supabase.functions.invoke('track-referral', {
+            body: { code: savedRefCode, userId: session.user.id }
+          }).catch(err => console.error('Error linking referral:', err));
+          localStorage.removeItem('referral_code');
+        }
         navigate(redirectTo);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, redirectTo]);
+  }, [navigate, redirectTo, refCode]);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);

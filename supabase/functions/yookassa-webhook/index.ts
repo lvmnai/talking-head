@@ -66,6 +66,63 @@ serve(async (req) => {
       }
 
       console.log(`Payment ${payment.id} succeeded, scenario ${payment.scenario_id} marked as paid`);
+
+      // Check if user was referred and calculate bonus for referrer
+      const { data: referral } = await supabaseClient
+        .from('referrals')
+        .select('referrer_id, status')
+        .eq('referred_id', payment.user_id)
+        .single();
+
+      if (referral) {
+        const bonusAmount = (parseFloat(payment.amount) * 0.25).toFixed(2); // 25% комиссия
+
+        // Update referral status on first payment
+        if (referral.status === 'registered') {
+          await supabaseClient
+            .from('referrals')
+            .update({
+              status: 'converted',
+              first_payment_at: new Date().toISOString()
+            })
+            .eq('referred_id', payment.user_id);
+        }
+
+        // Add bonus to referrer
+        const { data: balance } = await supabaseClient
+          .from('bonus_balance')
+          .select('balance, total_earned')
+          .eq('user_id', referral.referrer_id)
+          .single();
+
+        if (balance) {
+          const newBalance = parseFloat(balance.balance) + parseFloat(bonusAmount);
+          const newTotalEarned = parseFloat(balance.total_earned) + parseFloat(bonusAmount);
+
+          await supabaseClient
+            .from('bonus_balance')
+            .update({
+              balance: newBalance,
+              total_earned: newTotalEarned,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', referral.referrer_id);
+
+          // Record transaction
+          await supabaseClient
+            .from('bonus_transactions')
+            .insert({
+              user_id: referral.referrer_id,
+              amount: bonusAmount,
+              type: 'earned',
+              source: 'referral_commission',
+              payment_id: payment.id,
+              description: `Комиссия 25% с оплаты приглашенного пользователя`
+            });
+
+          console.log(`Bonus ${bonusAmount} added to referrer ${referral.referrer_id}`);
+        }
+      }
     } else if (event === 'payment.canceled') {
       const yookassaPaymentId = paymentObject.id;
 
