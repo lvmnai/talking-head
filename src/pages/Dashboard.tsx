@@ -55,6 +55,36 @@ const Dashboard = () => {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    // Subscribe to realtime changes in scenarios table
+    const channel = supabase
+      .channel('scenarios-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'scenarios'
+        },
+        (payload) => {
+          console.log('Scenario updated:', payload);
+          // Update the scenario in the local state
+          setScenarios(prev => 
+            prev.map(s => 
+              s.id === payload.new.id 
+                ? { ...s, ...payload.new } 
+                : s
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     
