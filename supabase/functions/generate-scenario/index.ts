@@ -185,36 +185,34 @@ serve(async (req) => {
       ? fullText.substring(0, 4000) 
       : fullText;
 
-    // Save scenario to database if user is authenticated
+    // Save scenario to database for tracking and future payment
     let scenarioId: string | null = null;
-    
-    if (userId) {
-      const { data: scenarioData, error: insertError } = await supabase
-        .from('scenarios')
-        .insert({
-          user_id: userId,
-          full_text: fullText,
-          preview_text: preview,
-          parameters: {
-            sphere,
-            product,
-            audience,
-            problems,
-            goal: purpose,
-            tone,
-            format,
-          },
-          is_paid: isFree, // Free scenarios are already "paid"
-          is_free: isFree,
-        })
-        .select()
-        .single();
 
-      if (insertError) {
-        console.error('Error saving scenario:', insertError);
-      } else {
-        scenarioId = scenarioData.id;
-      }
+    const { data: scenarioData, error: insertError } = await supabase
+      .from('scenarios')
+      .insert({
+        user_id: userId, // can be null for anonymous users
+        full_text: fullText,
+        preview_text: preview,
+        parameters: {
+          sphere,
+          product,
+          audience,
+          problems,
+          goal: purpose,
+          tone,
+          format,
+        },
+        is_paid: isFree, // Free scenarios are already "paid"
+        is_free: isFree,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error saving scenario:', insertError);
+    } else {
+      scenarioId = scenarioData.id;
     }
 
     return new Response(JSON.stringify({

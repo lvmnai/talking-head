@@ -51,12 +51,13 @@ serve(async (req) => {
         throw updatePaymentError;
       }
 
-      // Mark scenario as paid
+      // Mark scenario as paid and bind to user
       const { error: updateScenarioError } = await supabaseClient
         .from('scenarios')
         .update({
           is_paid: true,
           payment_id: yookassaPaymentId,
+          user_id: payment.user_id, // ensure ownership after payment
         })
         .eq('id', payment.scenario_id);
 
