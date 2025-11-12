@@ -78,6 +78,7 @@ serve(async (req) => {
     const purpose = (body.purpose ?? body.goal ?? '').toString().trim();
     const tone = (body.tone ?? '').toString().trim();
     const format = (body.format ?? '').toString().trim();
+    const isFree = body.is_free === true;
 
     // Validate enum values
     if (tone && !VALID_TONES.includes(tone)) {
@@ -193,7 +194,8 @@ serve(async (req) => {
             tone,
             format,
           },
-          is_paid: false,
+          is_paid: isFree, // Free scenarios are already "paid"
+          is_free: isFree,
         })
         .select()
         .single();
@@ -208,7 +210,8 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       preview,
       scenarioId,
-      fullText, // Временно для демо
+      fullText: isFree ? fullText : undefined, // Send full text only for free scenarios
+      isFree,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -43,6 +43,7 @@ interface Scenario {
   full_text: string;
   parameters: any;
   is_paid: boolean;
+  is_free: boolean;
   created_at: string;
 }
 
@@ -392,14 +393,21 @@ const Dashboard = () => {
                   </p>
 
                   <div className="bg-muted/50 p-3 md:p-4 rounded-none mb-4 max-h-60 md:max-h-96 overflow-y-auto">
-                    <p className="whitespace-pre-wrap text-sm md:text-base" style={{ lineHeight: '1.6' }}>
-                      {scenario.preview_text}
-                      {!scenario.is_paid && "..."}
+                    <p className="whitespace-pre-wrap text-base leading-relaxed font-sans" style={{ lineHeight: '1.8' }}>
+                      {scenario.is_paid || scenario.is_free ? scenario.full_text : scenario.preview_text}
+                      {!scenario.is_paid && !scenario.is_free && "..."}
                     </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-2">
-                    {scenario.is_paid ? (
+                    {scenario.is_free && (
+                      <div className="mb-3 p-3 bg-primary/10 rounded-none border border-primary/20">
+                        <p className="text-sm font-medium text-primary">
+                          🎉 Бесплатный тестовый сценарий
+                        </p>
+                      </div>
+                    )}
+                    {scenario.is_paid || scenario.is_free ? (
                       <>
                         <Button
                           variant="outline"

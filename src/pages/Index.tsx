@@ -25,28 +25,36 @@ const Index = () => {
 
   const faqData = [
     {
-      question: "Кому подходит?",
-      answer: "Психологам, коучам, экспертам, врачам, наставникам — всем, кто продаёт знания и услуги через соцсети. И кто устал от выгорания на этапе «придумать»"
+      question: "Как это работает? И почему так хорошо?",
+      answer: "Под капотом ИИ-агент из двух нейросетей: первая формирует задачу, вторая пишет сценарий. Главный секрет — в системных промптах, которые активируют глубинные знания и максимальные возможности нейросетей."
     },
     {
-      question: "А вы точно не накатали шаблонов, как все остальные «Neuro»?",
-      answer: "Мы сами прошли путь от 10 до 50 миллионов просмотров в месяц. Знаем, что работает. Знаем, как это формулируется. И научили нейросеть делать так же"
+      question: "А какие там нейросети?",
+      answer: "Gemini, Claude и ChatGPT, но в каком порядке и с какими промптами — секрет фирмы."
     },
     {
       question: "Надо ли мне что-то уметь? Я новичок",
-      answer: "Нужно уметь снимать видео на телефон. Или диктофон. Или веб-камеру. Всё остальное — в сценарии"
-    },
-    {
-      question: "А если у меня ещё нет аудитории?",
-      answer: "Начни с рилсов. С виральных сценариев. Наберёшь первую 1000 — перейдёшь на длинные форматы"
+      answer: "Сценарий готов к съёмке. Тебе нужно только включить камеру и начать говорить."
     },
     {
       question: "Можно ли редактировать сценарий?",
-      answer: "Да. Но честно — если ты заполнил форму подробно, править почти не придётся. Проверено на 500+ запусках"
+      answer: "Конечно, делай с ним что угодно. Нейросеть старалась для тебя."
     },
     {
-      question: "Что если мне не понравится?",
-      answer: "Вернём деньги в течение 24 часов. Без вопросов"
+      question: "А если мне не понравится?",
+      answer: "Ты можешь отредактировать сценарий самостоятельно, либо генерить новые варианты у нас, либо пойти в чат с любой другой нейросетью и попросить её исправить то, что тебя не устраивает. Сервис со всеми нейросетями в одной подписке с прямым доступом за рубли — www.sabka.pro."
+    },
+    {
+      question: "Кто это всё сделал?",
+      answer: "Артем @starostin_creator — идея, промты, тесты сценариев. Влад @lvmnaboutAi — создал агента, подцепил нейронки и сделал сайт."
+    },
+    {
+      question: "А если нам надо МНОГО сценариев?",
+      answer: "Ок, пиши в личку в телегу @starosting или @lvmnaboutAi, придумаем что-нибудь."
+    },
+    {
+      question: "А я хочу сам научиться писать такие промпты и запускать такие продукты!",
+      answer: "Ок, пиши в личку в телегу @starosting или @lvmnaboutAi, придумаем что-нибудь."
     }
   ];
 
@@ -85,43 +93,63 @@ const Index = () => {
 
           <div ref={inspiration.ref} className={`text-center mb-16 scroll-fade-in ${inspiration.isVisible ? 'visible' : ''}`}>
             <p className="text-xl text-foreground/70 max-w-3xl mx-auto leading-tight">
-              Забудь про вдохновение и творческие муки. Пока другие думают, ты делаешь. Сразу
+              Сценарий готов к съёмке. Тебе нужно только включить камеру и начать говорить. Забудь про вдохновение и творческие муки. Пока другие думают, ты делаешь — сразу!
             </p>
           </div>
 
           <div ref={form.ref} className={`scroll-fade-in ${form.isVisible ? 'visible' : ''}`}>
             <ScenarioFormNew />
           </div>
+
+          {/* Unique Value Proposition */}
+          <div className="text-center mt-16 mb-8">
+            <div className="sketch-border p-8 max-w-3xl mx-auto">
+              <h3 className="text-2xl md:text-3xl font-medium mb-4 text-foreground">
+                В чём отличие от любых других нейросетей и сервисов?
+              </h3>
+              <p className="text-lg text-foreground/70 leading-relaxed mb-4">
+                Мы автоматизируем то, что умеем: 10 лет занимаемся маркетингом и написали тысячи сценариев и рекламных роликов. Поэтому наши промпты построены на принципах, которые работают в реальности, а не по книжкам.
+              </p>
+              <p className="text-xl font-medium text-foreground">
+                Создай 1 сценарий бесплатно, убедишься.
+              </p>
+            </div>
+          </div>
           
           <div ref={content.ref} className={`text-center mt-32 space-y-8 scroll-fade-in ${content.isVisible ? 'visible' : ''}`}>
-            <h2 className="text-4xl md:text-6xl font-medium text-foreground mb-12 leading-tight tracking-tight">
-              Тебе осталось только…
+            <h2 className="text-3xl md:text-5xl font-medium text-foreground mb-6 leading-tight tracking-tight max-w-4xl mx-auto">
+              Сделали всё за тебя. Превратили «надо подумать» в «снимаю сегодня». Тебе осталось только…
             </h2>
-            <div className="flex flex-col items-center gap-4 text-2xl">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-muted-foreground bg-muted-foreground"></div>
+            <div className="flex flex-col items-start gap-4 text-xl md:text-2xl max-w-md mx-auto">
+              <div className="flex items-center gap-4">
+                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                  <span className="text-lg">✓</span>
+                </div>
                 <span className="line-through text-muted-foreground">Придумать</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-muted-foreground bg-muted-foreground"></div>
+              <div className="flex items-center gap-4">
+                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                  <span className="text-lg">✓</span>
+                </div>
                 <span className="line-through text-muted-foreground">Сформулировать</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-muted-foreground bg-muted-foreground"></div>
+              <div className="flex items-center gap-4">
+                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                  <span className="text-lg">✓</span>
+                </div>
                 <span className="line-through text-muted-foreground">Написать</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-muted-foreground bg-muted-foreground"></div>
+              <div className="flex items-center gap-4">
+                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                  <span className="text-lg">✓</span>
+                </div>
                 <span className="line-through text-muted-foreground">Оформить</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border-2 border-foreground"></div>
+              <div className="flex items-center gap-4">
+                <div className="w-7 h-7 border-2 border-foreground sketch-border-light"></div>
                 <span className="text-foreground font-medium">Снять</span>
               </div>
             </div>
-            <p className="text-lg text-foreground/70 max-w-3xl mx-auto mt-12 leading-tight">
-              Сделали всё за тебя. Превратили «надо подумать» в «снимаю сегодня»
-            </p>
           </div>
         </section>
 
@@ -143,7 +171,7 @@ const Index = () => {
             ].map((item, index) => (
               <div
                 key={index}
-                className="sketch-border p-4 card-hover bg-background cursor-pointer"
+                className="card-hover bg-background cursor-pointer p-2"
                 onClick={() => setSelectedImage(item.image)}
               >
                 <img 

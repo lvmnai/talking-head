@@ -30,7 +30,7 @@ const ScenarioFormNew = () => {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
-  const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string } | null>(null);
+  const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string; isFree?: boolean; fullText?: string } | null>(null);
   const [formData, setFormData] = useState({
     sphere: "",
     product: "",
@@ -86,6 +86,7 @@ const ScenarioFormNew = () => {
           goal: formData.goal,
           tone: formData.tone,
           format: formData.format,
+          is_free: isFreeScenario,
         },
       });
 
@@ -99,8 +100,13 @@ const ScenarioFormNew = () => {
       setCurrentStep(GENERATION_STEPS.length - 1);
       
       if (data?.preview && data?.scenarioId) {
-        setPreviewData({ preview: data.preview, scenarioId: data.scenarioId });
-        toast.success("Сценарий успешно создан!");
+        setPreviewData({ 
+          preview: data.preview, 
+          scenarioId: data.scenarioId,
+          isFree: data.isFree,
+          fullText: data.fullText
+        });
+        toast.success(data.isFree ? "Бесплатный тестовый сценарий создан!" : "Сценарий успешно создан!");
       } else {
         throw new Error("Invalid response format");
       }
@@ -132,14 +138,43 @@ const ScenarioFormNew = () => {
       <ScenarioPreview 
         preview={previewData.preview}
         scenarioId={previewData.scenarioId}
-        onClose={() => setPreviewData(null)} 
+        isFree={previewData.isFree}
+        fullText={previewData.fullText}
+        onClose={() => {
+          setPreviewData(null);
+          checkFreeScenario(); // Re-check after closing
+        }} 
       />
     );
   }
 
-  const buttonText = formData.format === "short" 
-    ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
-    : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";
+  const [isFreeScenario, setIsFreeScenario] = useState(false);
+
+  // Check if user already has scenarios
+  const checkFreeScenario = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      const { data, error } = await supabase
+        .from('scenarios')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .limit(1);
+      
+      setIsFreeScenario(!data || data.length === 0);
+    } else {
+      setIsFreeScenario(true); // Anonymous users get free scenario
+    }
+  };
+
+  useState(() => {
+    checkFreeScenario();
+  });
+
+  const buttonText = isFreeScenario 
+    ? "СОЗДАТЬ БЕСПЛАТНЫЙ ТЕСТОВЫЙ СЦЕНАРИЙ" 
+    : formData.format === "short" 
+      ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
+      : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">

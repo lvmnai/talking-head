@@ -10,6 +10,8 @@ interface ScenarioPreviewProps {
   preview: string;
   scenarioId: string;
   onClose: () => void;
+  isFree?: boolean;
+  fullText?: string;
 }
 
 interface BonusBalance {
@@ -26,7 +28,7 @@ const getWordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
 const getReadingTime = (wordCount: number) => Math.ceil(wordCount / 200); // 200 words per minute
 const getVideoTime = (wordCount: number) => Math.ceil(wordCount / 150); // ~150 words per minute for speech
 
-const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps) => {
+const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullText }: ScenarioPreviewProps) => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -150,7 +152,8 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
     return price;
   };
 
-  const wordCount = getWordCount(preview);
+  const displayText = isFree && fullText ? fullText : preview;
+  const wordCount = getWordCount(displayText);
   const readingTime = getReadingTime(wordCount);
   const videoTime = getVideoTime(wordCount);
 
@@ -181,13 +184,21 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
         </div>
 
         <div className="bg-muted/50 p-4 md:p-6 rounded-none mb-6 max-h-[600px] md:max-h-[800px] overflow-y-auto">
-          <p className="whitespace-pre-wrap text-sm md:text-base leading-relaxed" style={{ lineHeight: '1.6' }}>
-            {preview}
-            <span className="text-muted-foreground">...</span>
+          <p className="whitespace-pre-wrap text-base md:text-lg leading-relaxed font-sans" style={{ lineHeight: '1.8' }}>
+            {displayText}
+            {!isFree && <span className="text-muted-foreground">...</span>}
           </p>
         </div>
 
-        {!isAuthenticated && (
+        {isFree && (
+          <div className="mb-4 p-4 bg-primary/10 rounded-none border-2 border-primary/20">
+            <p className="text-sm font-medium text-primary">
+              🎉 Это ваш бесплатный тестовый сценарий! Следующие сценарии будут платными.
+            </p>
+          </div>
+        )}
+
+        {!isAuthenticated && !isFree && (
           <div className="mb-4 p-4 bg-muted/30 rounded-none border-2 border-border">
             <p className="text-sm text-muted-foreground">
               Войдите, чтобы сохранить сценарий в личном кабинете
@@ -229,28 +240,36 @@ const ScenarioPreview = ({ preview, scenarioId, onClose }: ScenarioPreviewProps)
         )}
 
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-          {!isAuthenticated ? (
-            <Button onClick={() => navigate("/auth?redirect=/dashboard")} size="lg" className="w-full sm:w-auto">
-              <LogIn className="mr-2 h-4 w-4" />
-              Войти через Google
+          {isFree ? (
+            <Button onClick={onClose} size="lg" className="w-full sm:w-auto">
+              Создать новый сценарий
             </Button>
           ) : (
-            <Button onClick={handlePayment} size="lg" disabled={isProcessingPayment} className="w-full sm:w-auto payment-pulse">
-              {isProcessingPayment ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Создание платежа...
-                </>
+            <>
+              {!isAuthenticated ? (
+                <Button onClick={() => navigate("/auth?redirect=/dashboard")} size="lg" className="w-full sm:w-auto">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Войти через Google
+                </Button>
               ) : (
-                <>
-                  {calculateFinalPrice() === 0 ? 'Оплатить бонусами' : `Оплатить ${calculateFinalPrice()}₽`}
-                </>
+                <Button onClick={handlePayment} size="lg" disabled={isProcessingPayment} className="w-full sm:w-auto payment-pulse">
+                  {isProcessingPayment ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Создание платежа...
+                    </>
+                  ) : (
+                    <>
+                      {calculateFinalPrice() === 0 ? 'Оплатить бонусами' : `Оплатить ${calculateFinalPrice()}₽`}
+                    </>
+                  )}
+                </Button>
               )}
-            </Button>
+              <Button variant="outline" onClick={onClose} size="lg" className="w-full sm:w-auto">
+                Создать новый сценарий
+              </Button>
+            </>
           )}
-          <Button variant="outline" onClick={onClose} size="lg" className="w-full sm:w-auto">
-            Создать новый сценарий
-          </Button>
         </div>
       </div>
     </div>

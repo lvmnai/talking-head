@@ -209,6 +209,7 @@ export type Database = {
           created_at: string | null
           full_text: string
           id: string
+          is_free: boolean
           is_paid: boolean | null
           parameters: Json
           payment_id: string | null
@@ -219,6 +220,7 @@ export type Database = {
           created_at?: string | null
           full_text: string
           id?: string
+          is_free?: boolean
           is_paid?: boolean | null
           parameters: Json
           payment_id?: string | null
@@ -229,6 +231,7 @@ export type Database = {
           created_at?: string | null
           full_text?: string
           id?: string
+          is_free?: boolean
           is_paid?: boolean | null
           parameters?: Json
           payment_id?: string | null
