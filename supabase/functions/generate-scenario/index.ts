@@ -166,7 +166,16 @@ serve(async (req) => {
     let fullText: string;
     try {
       const parsed = JSON.parse(responseText);
-      fullText = parsed.scenario || responseText;
+      // Handle array format: [{ "output": "..." }]
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].output) {
+        fullText = parsed[0].output;
+      } else if (parsed.scenario) {
+        fullText = parsed.scenario;
+      } else if (parsed.output) {
+        fullText = parsed.output;
+      } else {
+        fullText = responseText;
+      }
     } catch {
       fullText = responseText;
     }
