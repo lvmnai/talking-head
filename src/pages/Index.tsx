@@ -2,10 +2,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScenarioFormNew from "@/components/ScenarioFormNew";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import verticalVideoSketch from "@/assets/vertical-video-sketch.png";
-import horizontalVideoSketch from "@/assets/horizontal-video-sketch.png";
-import aiFlowGif from "@/assets/ai-flow.gif";
-import aiFlowStatic from "@/assets/ai-flow-static.png";
 import { useState } from "react";
 import {
   Accordion,
@@ -86,14 +82,26 @@ const Index = () => {
             <div ref={cards.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16 scroll-fade-in ${cards.isVisible ? 'visible' : ''}`}>
               <div className="sketch-border p-6 card-hover scroll-fade-in-delay-1">
                 <div className="flex justify-center mb-4">
-                  <img src={verticalVideoSketch} alt="Вертикальное видео" className="w-32 h-auto" />
+                  <img 
+                    src="/images/vertical-video-sketch.png" 
+                    alt="Вертикальное видео" 
+                    className="w-32 h-auto"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
                 <h3 className="font-medium text-xl mb-3 text-foreground">TikTok, Shorts, Instagram (1 мин)</h3>
                 <p className="text-foreground/70">Получишь 5 сценариев, по 3 креативных хука в каждом</p>
               </div>
               <div className="sketch-border p-6 card-hover scroll-fade-in-delay-2">
                 <div className="flex justify-center mb-4">
-                  <img src={horizontalVideoSketch} alt="Горизонтальное видео" className="w-48 h-auto" />
+                  <img 
+                    src="/images/horizontal-video-sketch.png" 
+                    alt="Горизонтальное видео" 
+                    className="w-48 h-auto"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
                 <h3 className="font-medium text-xl mb-3 text-foreground">YouTube, Дзен (до 20 мин)</h3>
                 <p className="text-foreground/70">Получишь 3 заголовка, 3 идеи обложки и сценарий</p>
@@ -110,9 +118,11 @@ const Index = () => {
                 }}
               >
                 <img 
-                  src={aiFlowGif}
+                  src="/images/ai-flow.gif"
                   alt="Схема работы AI-агентов"
                   className="w-full h-auto rounded-lg"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             </div>
@@ -221,9 +231,11 @@ const Index = () => {
             <DialogContent className="max-w-6xl w-full p-4">
               <div className="relative group">
                 <img 
-                  src={showGif ? aiFlowGif : aiFlowStatic}
+                  src={showGif ? "/images/ai-flow.gif" : "/images/ai-flow-static.png"}
                   alt="Схема работы AI-агентов"
                   className="w-full h-auto rounded-lg"
+                  loading="eager"
+                  decoding="async"
                 />
                 
                 {/* Navigation Arrows */}
