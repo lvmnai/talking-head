@@ -42,6 +42,17 @@ const ScenarioFormNew = () => {
     format: "short",
   });
 
+  // Authentication state to control button label and access
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -198,15 +209,6 @@ const ScenarioFormNew = () => {
       ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
       : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
-    };
-    checkAuth();
-  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
