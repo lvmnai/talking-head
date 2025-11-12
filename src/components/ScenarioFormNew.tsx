@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +31,7 @@ const ScenarioFormNew = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
   const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string; isFree?: boolean; fullText?: string } | null>(null);
+  const [isFreeScenario, setIsFreeScenario] = useState(false);
   const [formData, setFormData] = useState({
     sphere: "",
     product: "",
@@ -133,23 +134,6 @@ const ScenarioFormNew = () => {
     }
   };
 
-  if (previewData) {
-    return (
-      <ScenarioPreview 
-        preview={previewData.preview}
-        scenarioId={previewData.scenarioId}
-        isFree={previewData.isFree}
-        fullText={previewData.fullText}
-        onClose={() => {
-          setPreviewData(null);
-          checkFreeScenario(); // Re-check after closing
-        }} 
-      />
-    );
-  }
-
-  const [isFreeScenario, setIsFreeScenario] = useState(false);
-
   // Check if user already has scenarios
   const checkFreeScenario = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -166,11 +150,26 @@ const ScenarioFormNew = () => {
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     checkFreeScenario();
-  });
+  }, []);
 
-  const buttonText = isFreeScenario 
+  if (previewData) {
+    return (
+      <ScenarioPreview 
+        preview={previewData.preview}
+        scenarioId={previewData.scenarioId}
+        isFree={previewData.isFree}
+        fullText={previewData.fullText}
+        onClose={() => {
+          setPreviewData(null);
+          checkFreeScenario(); // Re-check after closing
+        }} 
+      />
+    );
+  }
+
+  const buttonText = isFreeScenario
     ? "СОЗДАТЬ БЕСПЛАТНЫЙ ТЕСТОВЫЙ СЦЕНАРИЙ" 
     : formData.format === "short" 
       ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
