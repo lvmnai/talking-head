@@ -52,6 +52,18 @@ serve(async (req) => {
       throw new Error('Missing required fields: scenario_id, amount');
     }
 
+    // Check if scenario is free - cannot create payment for free scenarios
+    const { data: scenarioData } = await supabaseAdmin
+      .from('scenarios')
+      .select('is_free')
+      .eq('id', scenario_id)
+      .single();
+
+    if (scenarioData?.is_free) {
+      console.log(`Attempt to create payment for free scenario ${scenario_id}`);
+      throw new Error('Cannot create payment for free scenario');
+    }
+
     let finalAmount = amount;
     let bonusUsed = 0;
 

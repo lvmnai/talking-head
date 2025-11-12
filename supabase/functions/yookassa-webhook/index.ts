@@ -67,6 +67,24 @@ serve(async (req) => {
 
       console.log(`Payment ${payment.id} succeeded, scenario ${payment.scenario_id} marked as paid`);
 
+      // Get scenario to check if it's free
+      const { data: scenario } = await supabaseClient
+        .from('scenarios')
+        .select('is_free')
+        .eq('id', payment.scenario_id)
+        .single();
+
+      // Skip bonus for free scenarios
+      if (scenario?.is_free) {
+        console.log(`Free scenario payment detected for scenario ${payment.scenario_id}, skipping referral bonus`);
+        return new Response(
+          JSON.stringify({ success: true, message: 'Free scenario, no bonus awarded' }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
       // Check if user was referred and calculate bonus for referrer
       const { data: referral } = await supabaseClient
         .from('referrals')
