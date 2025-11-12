@@ -6,12 +6,110 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// YooKassa official IP addresses for webhook notifications
+// Source: https://yookassa.ru/developers/using-api/webhooks#notification-authentication
+const YOOKASSA_IPS = [
+  '185.71.76.0/27',
+  '185.71.77.0/27', 
+  '77.75.153.0/25',
+  '77.75.156.11',
+  '77.75.156.35',
+  '77.75.154.128/25',
+  '2a02:5180::/32'
+];
+
+// Helper function to check if IP is in range
+function isIpInRange(ip: string, range: string): boolean {
+  if (range.includes('/')) {
+    // CIDR notation
+    const [rangeIp, bits] = range.split('/');
+    const mask = ~(2 ** (32 - parseInt(bits)) - 1);
+    
+    const ipNum = ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+    const rangeNum = rangeIp.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+    
+    return (ipNum & mask) === (rangeNum & mask);
+  } else {
+    // Single IP
+    return ip === range;
+  }
+}
+
+// Helper function to verify IP address
+function verifyYooKassaIp(request: Request): boolean {
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const realIp = request.headers.get('x-real-ip');
+  const clientIp = forwardedFor?.split(',')[0].trim() || realIp || 'unknown';
+  
+  console.log('Webhook request from IP:', clientIp);
+  
+  // For IPv6 addresses, skip detailed check (YooKassa uses 2a02:5180::/32)
+  if (clientIp.includes(':')) {
+    return clientIp.startsWith('2a02:5180');
+  }
+  
+  // Check if IP is in allowed ranges
+  const isAllowed = YOOKASSA_IPS.some(range => {
+    try {
+      return isIpInRange(clientIp, range);
+    } catch (e) {
+      console.error('Error checking IP range:', e);
+      return false;
+    }
+  });
+  
+  if (!isAllowed) {
+    console.error('Webhook rejected: IP not in YooKassa whitelist:', clientIp);
+  }
+  
+  return isAllowed;
+}
+
+// Helper function to verify payment with YooKassa API
+async function verifyPaymentWithApi(paymentId: string): Promise<any> {
+  const shopId = Deno.env.get('YOOKASSA_SHOP_ID');
+  const secretKey = Deno.env.get('YOOKASSA_SECRET_KEY');
+  
+  const authString = btoa(`${shopId}:${secretKey}`);
+  
+  try {
+    const response = await fetch(`https://api.yookassa.ru/v3/payments/${paymentId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${authString}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to verify payment with YooKassa API:', response.status);
+      return null;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error verifying payment with API:', error);
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // SECURITY: Verify that webhook is from YooKassa IP
+    if (!verifyYooKassaIp(req)) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid source IP' }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -27,6 +125,25 @@ serve(async (req) => {
     if (event === 'payment.succeeded') {
       const yookassaPaymentId = paymentObject.id;
       const metadata = paymentObject.metadata;
+
+      // SECURITY: Verify payment status with YooKassa API before processing
+      console.log('Verifying payment with YooKassa API:', yookassaPaymentId);
+      const verifiedPayment = await verifyPaymentWithApi(yookassaPaymentId);
+      
+      if (!verifiedPayment) {
+        console.error('Payment verification failed - could not fetch from API');
+        throw new Error('Payment verification failed');
+      }
+      
+      if (verifiedPayment.status !== 'succeeded') {
+        console.error('Payment verification failed - status mismatch:', {
+          webhook_status: 'succeeded',
+          api_status: verifiedPayment.status
+        });
+        throw new Error('Payment status mismatch - potential fraud attempt');
+      }
+      
+      console.log('Payment verified successfully:', yookassaPaymentId);
 
       // Find payment in database
       const { data: payment, error: findError } = await supabaseClient
