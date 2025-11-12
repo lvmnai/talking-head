@@ -1,11 +1,8 @@
 import logo from "@/assets/logo.png";
-
 const Footer = () => {
   return <footer className="border-t-2 border-border mt-32 sketch-border-light">
       <div className="container mx-auto px-6 sm:px-12 lg:px-16 py-16">
-        <div className="flex justify-center mb-8">
-          <img src={logo} alt="Говорящая голова" className="w-16 h-16" />
-        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <h4 className="font-medium mb-6 text-foreground">Документы</h4>
