@@ -24,6 +24,7 @@ const Index = () => {
   const examples = useScrollAnimation();
   const faq = useScrollAnimation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [aiFlowOpen, setAiFlowOpen] = useState(false);
   const [showGif, setShowGif] = useState(true);
 
   const faqData = [
@@ -102,10 +103,13 @@ const Index = () => {
             <div className="mt-16 max-w-4xl mx-auto">
               <div 
                 className="cursor-pointer card-hover"
-                onClick={() => setShowGif(!showGif)}
+                onClick={() => {
+                  setAiFlowOpen(true);
+                  setShowGif(true);
+                }}
               >
                 <img 
-                  src={showGif ? aiFlowGif : aiFlowStatic}
+                  src={aiFlowGif}
                   alt="Схема работы AI-агентов"
                   className="w-full h-auto rounded-lg"
                 />
@@ -208,6 +212,25 @@ const Index = () => {
                   className="w-full h-auto"
                 />
               )}
+            </DialogContent>
+          </Dialog>
+
+          {/* AI Flow Dialog */}
+          <Dialog open={aiFlowOpen} onOpenChange={() => setAiFlowOpen(false)}>
+            <DialogContent className="max-w-6xl w-full p-4">
+              <div className="relative">
+                <img 
+                  src={showGif ? aiFlowGif : aiFlowStatic}
+                  alt="Схема работы AI-агентов"
+                  className="w-full h-auto rounded-lg"
+                />
+                <button
+                  onClick={() => setShowGif(!showGif)}
+                  className="absolute bottom-4 right-4 px-4 py-2 bg-background/90 hover:bg-background border border-border rounded-md text-sm font-medium transition-colors"
+                >
+                  {showGif ? "Показать скриншот" : "Показать анимацию"}
+                </button>
+              </div>
             </DialogContent>
           </Dialog>
         </section>
