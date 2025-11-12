@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import logoTalkingHead from "@/assets/logo-talking-head.png";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const location = useLocation();
@@ -38,7 +38,7 @@ const Header = () => {
       <div className="container mx-auto px-3 sm:px-6 lg:px-16">
         <div className="flex items-center justify-between h-16 sm:h-20">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-            <img src={logoTalkingHead} alt="Logo" className="w-6 h-6 sm:w-8 sm:h-8" />
+            <img src={logo} alt="Говорящая голова" className="w-10 h-10 sm:w-12 sm:h-12" />
             <span className="text-base sm:text-2xl font-medium text-foreground tracking-tight">
               Говорящая голова
             </span>
