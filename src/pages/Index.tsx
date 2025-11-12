@@ -14,6 +14,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Index = () => {
   const hero = useScrollAnimation();
@@ -218,17 +219,28 @@ const Index = () => {
           {/* AI Flow Dialog */}
           <Dialog open={aiFlowOpen} onOpenChange={() => setAiFlowOpen(false)}>
             <DialogContent className="max-w-6xl w-full p-4">
-              <div className="relative">
+              <div className="relative group">
                 <img 
                   src={showGif ? aiFlowGif : aiFlowStatic}
                   alt="Схема работы AI-агентов"
                   className="w-full h-auto rounded-lg"
                 />
+                
+                {/* Navigation Arrows */}
                 <button
                   onClick={() => setShowGif(!showGif)}
-                  className="absolute bottom-4 right-4 px-4 py-2 bg-background/90 hover:bg-background border border-border rounded-md text-sm font-medium transition-colors"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-background/90 hover:bg-background border border-border rounded-full transition-all opacity-0 group-hover:opacity-100"
+                  aria-label="Предыдущее изображение"
                 >
-                  {showGif ? "Показать скриншот" : "Показать анимацию"}
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                
+                <button
+                  onClick={() => setShowGif(!showGif)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-background/90 hover:bg-background border border-border rounded-full transition-all opacity-0 group-hover:opacity-100"
+                  aria-label="Следующее изображение"
+                >
+                  <ChevronRight className="w-6 h-6" />
                 </button>
               </div>
             </DialogContent>
