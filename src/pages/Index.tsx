@@ -4,6 +4,8 @@ import ScenarioFormNew from "@/components/ScenarioFormNew";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import verticalVideoSketch from "@/assets/vertical-video-sketch.png";
 import horizontalVideoSketch from "@/assets/horizontal-video-sketch.png";
+import aiFlowGif from "@/assets/ai-flow.gif";
+import aiFlowStatic from "@/assets/ai-flow-static.png";
 import { useState } from "react";
 import {
   Accordion,
@@ -22,6 +24,7 @@ const Index = () => {
   const examples = useScrollAnimation();
   const faq = useScrollAnimation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showGif, setShowGif] = useState(true);
 
   const faqData = [
     {
@@ -69,9 +72,14 @@ const Index = () => {
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-medium mb-12 text-foreground tracking-tight leading-none">
               Живой сценарий говорящей головы за 2 минуты
             </h1>
-            <p className="text-xl md:text-2xl text-foreground max-w-3xl mx-auto leading-tight mb-16">
-              Съёмка с первого дубля, без правок и редактуры
-            </p>
+            <div className="max-w-3xl mx-auto mb-16 space-y-6">
+              <p className="text-xl md:text-2xl text-foreground leading-tight">
+                Съёмка с первого дубля, без правок и редактуры
+              </p>
+              <p className="text-xl text-foreground/70 leading-tight">
+                Сценарий готов к съёмке. Тебе нужно только включить камеру и начать говорить. Забудь про вдохновение и творческие муки. Пока другие думают, ты делаешь — сразу!
+              </p>
+            </div>
             
             <div ref={cards.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16 scroll-fade-in ${cards.isVisible ? 'visible' : ''}`}>
               <div className="sketch-border p-6 card-hover scroll-fade-in-delay-1">
@@ -89,12 +97,20 @@ const Index = () => {
                 <p className="text-foreground/70">Получишь 3 заголовка, 3 идеи обложки и сценарий</p>
               </div>
             </div>
-          </div>
 
-          <div ref={inspiration.ref} className={`text-center mb-16 scroll-fade-in ${inspiration.isVisible ? 'visible' : ''}`}>
-            <p className="text-xl text-foreground/70 max-w-3xl mx-auto leading-tight">
-              Сценарий готов к съёмке. Тебе нужно только включить камеру и начать говорить. Забудь про вдохновение и творческие муки. Пока другие думают, ты делаешь — сразу!
-            </p>
+            {/* AI Flow Section */}
+            <div className="mt-16 max-w-4xl mx-auto">
+              <div 
+                className="cursor-pointer card-hover"
+                onClick={() => setShowGif(!showGif)}
+              >
+                <img 
+                  src={showGif ? aiFlowGif : aiFlowStatic}
+                  alt="Схема работы AI-агентов"
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
+            </div>
           </div>
 
           <div ref={form.ref} className={`scroll-fade-in ${form.isVisible ? 'visible' : ''}`}>
