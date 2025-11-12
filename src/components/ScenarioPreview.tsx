@@ -4,7 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { LogIn, Loader2, FileText, Clock, Video } from "lucide-react";
+import { LogIn, Loader2, FileText, Clock, Video, Copy, Download, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportScenario, ExportFormat } from "@/lib/exportUtils";
 
 interface ScenarioPreviewProps {
   preview: string;
@@ -159,6 +166,31 @@ const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullTex
     return price;
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(displayText);
+      toast.success("Сценарий скопирован в буфер обмена");
+    } catch (error) {
+      toast.error("Не удалось скопировать");
+    }
+  };
+
+  const handleDownload = async (format: ExportFormat) => {
+    try {
+      await exportScenario(displayText, scenarioId, format);
+      const formatNames = {
+        txt: "TXT",
+        pdf: "PDF",
+        docx: "DOCX",
+        md: "Markdown"
+      };
+      toast.success(`Сценарий сохранён как ${formatNames[format]}`);
+    } catch (error) {
+      toast.error("Не удалось сохранить файл");
+      console.error(error);
+    }
+  };
+
   const displayText = isFree && fullText ? fullText : preview;
   const wordCount = getWordCount(displayText);
   const readingTime = getReadingTime(wordCount);
@@ -248,9 +280,38 @@ const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullTex
 
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
           {isFree ? (
-            <Button onClick={onClose} size="lg" className="w-full sm:w-auto">
-              Создать новый сценарий
-            </Button>
+            <>
+              <Button onClick={handleCopy} size="lg" variant="outline" className="w-full sm:flex-1">
+                <Copy className="mr-2 h-4 w-4" />
+                Копировать
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="lg" className="w-full sm:flex-1">
+                    <Download className="mr-2 h-4 w-4" />
+                    Скачать
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-popover z-50">
+                  <DropdownMenuItem onClick={() => handleDownload("txt")}>
+                    Скачать как TXT
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload("pdf")}>
+                    Скачать как PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload("docx")}>
+                    Скачать как DOCX
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDownload("md")}>
+                    Скачать как Markdown
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button onClick={onClose} size="lg" className="w-full sm:w-auto">
+                Создать новый сценарий
+              </Button>
+            </>
           ) : (
             <>
               {!isAuthenticated ? (
