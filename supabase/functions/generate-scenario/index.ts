@@ -141,7 +141,8 @@ serve(async (req) => {
     if (sphere) url.searchParams.set('sphere', sphere);
     if (product) url.searchParams.set('product', product);
     if (problems) url.searchParams.set('problems', problems);
-    if (isFree) url.searchParams.set('is_free', 'true');
+    // Always send is_free parameter
+    url.searchParams.set('is_free', isFree ? 'true' : 'false');
 
     console.log('Generating scenario for user:', userId || 'anonymous');
     const response = await fetch(url.toString(), {
