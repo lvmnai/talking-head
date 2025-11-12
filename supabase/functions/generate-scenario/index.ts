@@ -186,6 +186,7 @@ serve(async (req) => {
       : fullText;
 
     // Save scenario to database for tracking and future payment
+    // Using service_role to bypass RLS for anonymous users
     let scenarioId: string | null = null;
 
     const { data: scenarioData, error: insertError } = await supabase
@@ -211,13 +212,19 @@ serve(async (req) => {
 
     if (insertError) {
       console.error('Error saving scenario:', insertError);
+      // For anonymous users, still return success with the scenario text
+      // But without scenarioId (they won't be able to pay later)
+      console.log('Continuing without saving scenario for anonymous user');
     } else {
       scenarioId = scenarioData.id;
+      console.log(`Scenario saved with ID: ${scenarioId}`);
     }
 
+    // Return response - always return preview even if saving failed
+    // For anonymous free scenarios, scenarioId can be null
     return new Response(JSON.stringify({
       preview,
-      scenarioId,
+      scenarioId: scenarioId || 'anonymous', // Use placeholder for anonymous
       fullText: isFree ? fullText : undefined, // Send full text only for free scenarios
       isFree,
     }), {

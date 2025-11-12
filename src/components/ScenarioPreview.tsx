@@ -69,6 +69,13 @@ const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullTex
   };
 
   const handlePayment = async () => {
+    // Cannot pay for anonymous scenarios
+    if (scenarioId === 'anonymous') {
+      toast.error('Войдите в систему чтобы оплатить сценарий');
+      navigate(`/auth?redirect=/dashboard`);
+      return;
+    }
+
     if (!isAuthenticated) {
       navigate(`/auth?redirect=/dashboard`);
       return;
