@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Lightbulb, Info } from "lucide-react";
+import { Loader2, Lightbulb, Info, LogIn } from "lucide-react";
 import ScenarioPreview from "./ScenarioPreview";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -44,6 +44,16 @@ const ScenarioFormNew = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Проверяем авторизацию ПЕРЕД генерацией
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Войдите через Google, чтобы создать сценарий");
+      // Сохраняем данные формы в localStorage для восстановления после входа
+      localStorage.setItem('pendingScenarioForm', JSON.stringify(formData));
+      window.location.href = '/auth?redirect=/';
+      return;
+    }
     
     if (!formData.sphere || !formData.product || !formData.audience || !formData.problems) {
       toast.error("Пожалуйста, заполните все обязательные поля");
@@ -146,12 +156,25 @@ const ScenarioFormNew = () => {
       
       setIsFreeScenario(!data || data.length === 0);
     } else {
-      setIsFreeScenario(true); // Anonymous users get free scenario
+      setIsFreeScenario(false); // Anonymous users DON'T get free scenario anymore
     }
   };
 
   useEffect(() => {
     checkFreeScenario();
+    
+    // Восстанавливаем данные формы после авторизации
+    const savedForm = localStorage.getItem('pendingScenarioForm');
+    if (savedForm) {
+      try {
+        const parsed = JSON.parse(savedForm);
+        setFormData(parsed);
+        localStorage.removeItem('pendingScenarioForm');
+        toast.success("Теперь можете создать сценарий!");
+      } catch (e) {
+        console.error('Failed to restore form data:', e);
+      }
+    }
   }, []);
 
   if (previewData) {
@@ -169,11 +192,21 @@ const ScenarioFormNew = () => {
     );
   }
 
-  const buttonText = isFreeScenario
+  const buttonText = isFreeScenario 
     ? "СОЗДАТЬ БЕСПЛАТНЫЙ ТЕСТОВЫЙ СЦЕНАРИЙ" 
     : formData.format === "short" 
       ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
       : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";
+  
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto">
@@ -363,6 +396,11 @@ const ScenarioFormNew = () => {
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Создаём сценарий...
+            </>
+          ) : !isAuthenticated ? (
+            <>
+              <LogIn className="mr-2 h-5 w-5" />
+              Войти через Google для создания сценария
             </>
           ) : (
             buttonText
