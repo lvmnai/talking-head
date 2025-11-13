@@ -191,7 +191,7 @@ const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullTex
     }
   };
 
-  const displayText = isFree && fullText ? fullText : preview;
+  const displayText = isFree && fullText ? fullText : preview.slice(0, 200);
   const wordCount = getWordCount(displayText);
   const readingTime = getReadingTime(wordCount);
   const videoTime = getVideoTime(wordCount);
