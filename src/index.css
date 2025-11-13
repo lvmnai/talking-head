@@ -114,6 +114,15 @@
   .scroll-fade-in-delay-3 {
     transition-delay: 0.3s;
   }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 
   .payment-pulse {
     animation: pulse-glow 2s ease-in-out infinite;
