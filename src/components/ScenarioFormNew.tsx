@@ -415,11 +415,6 @@ const ScenarioFormNew = () => {
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Создаём сценарий...
             </>
-          ) : !isAuthenticated ? (
-            <>
-              <LogIn className="mr-2 h-5 w-5" />
-              Войти через Google для создания сценария
-            </>
           ) : (
             buttonText
           )}
