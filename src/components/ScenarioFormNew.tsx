@@ -44,11 +44,24 @@ const ScenarioFormNew = () => {
 
   // Authentication state to control button label and access
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [hasFreeScenario, setHasFreeScenario] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+      
+      // Check if user has already created a free scenario
+      if (session) {
+        const { data: scenarios } = await supabase
+          .from('scenarios')
+          .select('is_free')
+          .eq('user_id', session.user.id)
+          .eq('is_free', true)
+          .limit(1);
+        
+        setHasFreeScenario(scenarios && scenarios.length > 0);
+      }
     };
     checkAuth();
   }, []);
@@ -155,19 +168,22 @@ const ScenarioFormNew = () => {
     }
   };
 
-  // Check if user already has scenarios
+  // Check if user already has a free scenario
   const checkFreeScenario = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
       const { data, error } = await supabase
         .from('scenarios')
-        .select('id')
+        .select('is_free')
         .eq('user_id', session.user.id)
+        .eq('is_free', true)
         .limit(1);
       
+      setHasFreeScenario(data && data.length > 0);
       setIsFreeScenario(!data || data.length === 0);
     } else {
-      setIsFreeScenario(false); // Anonymous users DON'T get free scenario anymore
+      setHasFreeScenario(false);
+      setIsFreeScenario(false);
     }
   };
 
@@ -203,8 +219,8 @@ const ScenarioFormNew = () => {
     );
   }
 
-  const buttonText = isFreeScenario 
-    ? "СОЗДАТЬ БЕСПЛАТНЫЙ ТЕСТОВЫЙ СЦЕНАРИЙ" 
+  const buttonText = !hasFreeScenario 
+    ? "СОЗДАТЬ БЕСПЛАТНО" 
     : formData.format === "short" 
       ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
       : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";

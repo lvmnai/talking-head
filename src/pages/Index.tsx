@@ -65,22 +65,30 @@ const Index = () => {
       
       <main className="pt-24">
         {/* Hero Section */}
-        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-24">
-          <div ref={hero.ref} className={`text-center mb-20 scroll-fade-in ${hero.isVisible ? 'visible' : ''}`}>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-medium mb-12 text-foreground tracking-tight leading-none">
+        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-12 md:py-24">
+          <div ref={hero.ref} className={`text-center mb-12 md:mb-20 scroll-fade-in ${hero.isVisible ? 'visible' : ''}`}>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-medium mb-8 md:mb-12 text-foreground tracking-tight leading-none">
               Живой сценарий говорящей головы за 2 минуты
             </h1>
-            <div className="max-w-3xl mx-auto mb-16 space-y-6">
+            <div className="max-w-3xl mx-auto mb-8 md:mb-12 space-y-4 md:space-y-6">
               <p className="text-xl md:text-2xl text-foreground leading-tight">
                 Съёмка с первого дубля, без правок и редактуры
               </p>
-              <p className="text-xl text-foreground/70 leading-tight">
-                Сценарий готов к съёмке. Тебе нужно только включить камеру и начать говорить. Забудь про вдохновение и творческие муки. Пока другие думают, ты делаешь — сразу!
-              </p>
+              
+              {/* AI Flow Static Image */}
+              <div className="my-6 md:my-8">
+                <img 
+                  src="/images/ai-flow-static.png"
+                  alt="Схема работы AI-агентов"
+                  className="w-full h-auto rounded-lg mx-auto max-w-4xl"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
             </div>
             
-            <div ref={cards.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16 scroll-fade-in ${cards.isVisible ? 'visible' : ''}`}>
-              <div className="sketch-border p-6 card-hover scroll-fade-in-delay-1">
+            <div ref={cards.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto mb-8 md:mb-16 scroll-fade-in ${cards.isVisible ? 'visible' : ''}`}>
+              <div className="p-6 card-hover scroll-fade-in-delay-1">
                 <div className="flex justify-center mb-4">
                   <img 
                     src="/images/vertical-video-sketch.png" 
@@ -93,7 +101,7 @@ const Index = () => {
                 <h3 className="font-medium text-xl mb-3 text-foreground">TikTok, Shorts, Instagram (1 мин)</h3>
                 <p className="text-foreground/70">Получишь 5 сценариев, по 3 креативных хука в каждом</p>
               </div>
-              <div className="sketch-border p-6 card-hover scroll-fade-in-delay-2">
+              <div className="p-6 card-hover scroll-fade-in-delay-2">
                 <div className="flex justify-center mb-4">
                   <img 
                     src="/images/horizontal-video-sketch.png" 
@@ -108,33 +116,42 @@ const Index = () => {
               </div>
             </div>
 
-            {/* AI Flow Section */}
-            <div className="mt-16 max-w-4xl mx-auto">
-              <div 
-                className="cursor-pointer card-hover"
-                onClick={() => {
-                  setAiFlowOpen(true);
-                  setShowGif(true);
-                }}
-              >
-                <img 
-                  src="/images/ai-flow.gif"
-                  alt="Схема работы AI-агентов"
-                  className="w-full h-auto rounded-lg"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
+            <div className="max-w-3xl mx-auto mb-8 md:mb-12">
+              <p className="text-xl md:text-2xl text-foreground leading-tight">
+                Сценарий готов к съёмке. Тебе нужно только включить камеру и начать говорить. Забудь про вдохновение и творческие муки. Пока другие думают, ты делаешь — сразу!
+              </p>
             </div>
           </div>
 
-          <div ref={form.ref} className={`scroll-fade-in ${form.isVisible ? 'visible' : ''}`}>
+          <div ref={form.ref} className={`scroll-fade-in ${form.isVisible ? 'visible' : ''} mb-12 md:mb-16`}>
             <ScenarioFormNew />
           </div>
 
+          {/* AI Flow GIF Section */}
+          <div className="mb-12 md:mb-16 max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-medium text-center mb-6 md:mb-8 text-foreground tracking-tight leading-tight">
+              Вот как это работает
+            </h2>
+            <div 
+              className="sketch-border p-4 cursor-pointer card-hover"
+              onClick={() => {
+                setAiFlowOpen(true);
+                setShowGif(true);
+              }}
+            >
+              <img 
+                src="/images/ai-flow.gif"
+                alt="Схема работы AI-агентов"
+                className="w-full h-auto rounded-lg"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+
           {/* Unique Value Proposition */}
-          <div className="text-center mt-16 mb-8">
-            <div className="sketch-border p-8 max-w-3xl mx-auto">
+          <div className="text-center mt-8 md:mt-16 mb-8">
+            <div className="p-6 md:p-8 max-w-3xl mx-auto">
               <h3 className="text-2xl md:text-3xl font-medium mb-4 text-foreground">
                 В чём отличие от любых других нейросетей и сервисов?
               </h3>
@@ -147,58 +164,62 @@ const Index = () => {
             </div>
           </div>
           
-          <div ref={content.ref} className={`text-center mt-32 space-y-8 scroll-fade-in ${content.isVisible ? 'visible' : ''}`}>
+          <div ref={content.ref} className={`text-center mt-16 md:mt-32 space-y-6 md:space-y-8 scroll-fade-in ${content.isVisible ? 'visible' : ''}`}>
             <h2 className="text-3xl md:text-5xl font-medium text-foreground mb-6 leading-tight tracking-tight max-w-4xl mx-auto">
               Сделали всё за тебя. Превратили «надо подумать» в «снимаю сегодня». Тебе осталось только…
             </h2>
-            <div className="flex flex-col items-start gap-4 text-xl md:text-2xl max-w-md mx-auto">
-              <div className="flex items-center gap-4">
-                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
-                  <span className="text-lg">✓</span>
+            <div className="flex flex-col items-center gap-4 text-xl md:text-2xl">
+              <div className="flex flex-col items-start gap-4 text-left">
+                <div className="flex items-center gap-4">
+                  <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                    <span className="text-lg">✓</span>
+                  </div>
+                  <span className="line-through text-muted-foreground">Придумать</span>
                 </div>
-                <span className="line-through text-muted-foreground">Придумать</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
-                  <span className="text-lg">✓</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                    <span className="text-lg">✓</span>
+                  </div>
+                  <span className="line-through text-muted-foreground">Сформулировать</span>
                 </div>
-                <span className="line-through text-muted-foreground">Сформулировать</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
-                  <span className="text-lg">✓</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                    <span className="text-lg">✓</span>
+                  </div>
+                  <span className="line-through text-muted-foreground">Написать</span>
                 </div>
-                <span className="line-through text-muted-foreground">Написать</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
-                  <span className="text-lg">✓</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-7 h-7 border-2 border-muted-foreground sketch-border-light flex items-center justify-center">
+                    <span className="text-lg">✓</span>
+                  </div>
+                  <span className="line-through text-muted-foreground">Оформить</span>
                 </div>
-                <span className="line-through text-muted-foreground">Оформить</span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-7 h-7 border-2 border-foreground sketch-border-light"></div>
-                <span className="text-foreground font-medium">Снять</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-7 h-7 border-2 border-foreground sketch-border-light"></div>
+                  <span className="text-foreground font-medium">Снять</span>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Examples Section */}
-        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-16 mt-8">
+        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-8 md:py-16 mt-4 md:mt-8">
           <div ref={examples.ref} className={`scroll-fade-in ${examples.isVisible ? 'visible' : ''}`}>
-            <h2 className="text-4xl md:text-6xl font-medium text-center mb-8 text-foreground tracking-tight leading-tight">
+            <h2 className="text-4xl md:text-6xl font-medium text-center mb-6 md:mb-8 text-foreground tracking-tight leading-tight">
               Посмотри примеры
             </h2>
-            <p className="text-center text-foreground/70 mb-16 max-w-3xl mx-auto text-lg leading-tight">
+            <p className="text-center text-foreground/70 mb-8 md:mb-16 max-w-3xl mx-auto text-lg leading-tight">
               У нас нейросети пишут на уровне лучших сценаристов и креаторов. Потому что мы сами такие
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               { image: "/examples/example-1.png", alt: "Психологический стриптиз" },
               { image: "/examples/example-2.png", alt: "Нарушение сна" },
-              { image: "/examples/example-3.png", alt: "Гenii воруют: секреты креатива Apple, Nike, Dyson" },
+              { image: "/examples/example-3.png", alt: "Гении воруют: секреты креатива Apple, Nike, Dyson" },
             ].map((item, index) => (
               <div
                 key={index}
@@ -212,6 +233,31 @@ const Index = () => {
                 />
               </div>
             ))}
+          </div>
+          
+          {/* Mobile Carousel */}
+          <div className="md:hidden">
+            <div className="overflow-x-auto scrollbar-hide">
+              <div className="flex gap-4 pb-4">
+                {[
+                  { image: "/examples/example-1.png", alt: "Психологический стриптиз" },
+                  { image: "/examples/example-2.png", alt: "Нарушение сна" },
+                  { image: "/examples/example-3.png", alt: "Гении воруют: секреты креатива Apple, Nike, Dyson" },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-[85vw] card-hover bg-background cursor-pointer p-2"
+                    onClick={() => setSelectedImage(item.image)}
+                  >
+                    <img 
+                      src={item.image} 
+                      alt={item.alt}
+                      className="w-full h-auto rounded-sm"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           
           <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
@@ -260,9 +306,9 @@ const Index = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-24 mt-16">
+        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-12 md:py-24 mt-8 md:mt-16">
           <div ref={faq.ref} className={`scroll-fade-in ${faq.isVisible ? 'visible' : ''}`}>
-            <h2 className="text-4xl md:text-6xl font-medium text-center mb-16 text-foreground tracking-tight leading-tight">
+            <h2 className="text-4xl md:text-6xl font-medium text-center mb-8 md:mb-16 text-foreground tracking-tight leading-tight">
               Вопросы и ответы
             </h2>
             <div className="max-w-3xl mx-auto">
