@@ -19,6 +19,7 @@ interface ScenarioPreviewProps {
   onClose: () => void;
   isFree?: boolean;
   fullText?: string;
+  format?: string;
 }
 
 interface BonusBalance {
@@ -35,14 +36,14 @@ const getWordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
 const getReadingTime = (wordCount: number) => Math.ceil(wordCount / 200); // 200 words per minute
 const getVideoTime = (wordCount: number) => Math.ceil(wordCount / 150); // ~150 words per minute for speech
 
-const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullText }: ScenarioPreviewProps) => {
+const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullText, format = 'short' }: ScenarioPreviewProps) => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [bonusBalance, setBonusBalance] = useState(0);
   const [useBonus, setUseBonus] = useState(false);
   const [isReferral, setIsReferral] = useState(false);
-  const basePrice = 10;
+  const basePrice = format === 'short' ? 499 : 399;
 
   useEffect(() => {
     checkAuth();
