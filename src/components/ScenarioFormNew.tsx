@@ -30,7 +30,7 @@ const ScenarioFormNew = () => {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
-  const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string; isFree?: boolean; fullText?: string } | null>(null);
+  const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string; isFree?: boolean; fullText?: string; format?: string } | null>(null);
   const [isFreeScenario, setIsFreeScenario] = useState(false);
   const [formData, setFormData] = useState({
     sphere: "",
@@ -139,7 +139,8 @@ const ScenarioFormNew = () => {
           preview: data.preview, 
           scenarioId: data.scenarioId,
           isFree: data.isFree,
-          fullText: data.fullText
+          fullText: data.fullText,
+          format: formData.format
         });
         toast.success(data.isFree ? "Бесплатный тестовый сценарий создан!" : "Сценарий успешно создан!");
       } else {
@@ -211,10 +212,11 @@ const ScenarioFormNew = () => {
         scenarioId={previewData.scenarioId}
         isFree={previewData.isFree}
         fullText={previewData.fullText}
+        format={previewData.format}
         onClose={() => {
           setPreviewData(null);
           checkFreeScenario(); // Re-check after closing
-        }} 
+        }}
       />
     );
   }

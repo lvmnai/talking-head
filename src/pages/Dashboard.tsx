@@ -56,7 +56,6 @@ const Dashboard = () => {
   const [bonusBalance, setBonusBalance] = useState(0);
   const [useBonusMap, setUseBonusMap] = useState<Map<string, boolean>>(new Map());
   const [isReferral, setIsReferral] = useState(false);
-  const basePrice = 10;
 
   useEffect(() => {
     checkAuth();
@@ -210,11 +209,16 @@ const Dashboard = () => {
       }
 
       const useBonus = useBonusMap.get(scenarioId) || false;
+      const scenario = scenarios.find(s => s.id === scenarioId);
+      if (!scenario) {
+        toast.error('Сценарий не найден');
+        return;
+      }
 
       const { data, error } = await supabase.functions.invoke('create-yookassa-payment', {
         body: {
           scenario_id: scenarioId,
-          amount: basePrice,
+          amount: getBasePrice(scenario),
           description: 'Оплата сценария',
           use_bonus: useBonus
         },
@@ -265,8 +269,13 @@ const Dashboard = () => {
     }
   };
 
-  const calculateFinalPrice = (scenarioId: string) => {
-    let price = basePrice;
+  const getBasePrice = (scenario: Scenario) => {
+    const format = scenario.parameters?.format || 'short';
+    return format === 'short' ? 499 : 399;
+  };
+
+  const calculateFinalPrice = (scenario: Scenario) => {
+    let price = getBasePrice(scenario);
     
     // Применяем скидку для приглашенных
     if (isReferral) {
@@ -274,7 +283,7 @@ const Dashboard = () => {
     }
     
     // Вычитаем бонусы если выбрано
-    if (useBonusMap.get(scenarioId) && bonusBalance > 0) {
+    if (useBonusMap.get(scenario.id) && bonusBalance > 0) {
       price = Math.max(0, price - bonusBalance);
     }
     
@@ -469,7 +478,7 @@ const Dashboard = () => {
                         {isReferral && (
                           <div className="mb-3 p-2 bg-green-500/10 rounded-none border border-green-500/20">
                             <p className="text-xs font-medium text-green-700 dark:text-green-300">
-                              🎉 Скидка 15%: {Math.round(basePrice * 0.85)}₽
+                              🎉 Скидка 15%: {Math.round(getBasePrice(scenario) * 0.85)}₽
                             </p>
                           </div>
                         )}
@@ -485,9 +494,9 @@ const Dashboard = () => {
                             </>
                           ) : (
                             <>
-                              {calculateFinalPrice(scenario.id) === 0 
+                              {calculateFinalPrice(scenario) === 0 
                                 ? 'Оплатить бонусами' 
-                                : `Оплатить ${calculateFinalPrice(scenario.id)}₽`}
+                                : `Оплатить ${calculateFinalPrice(scenario)}₽`}
                             </>
                           )}
                         </Button>
