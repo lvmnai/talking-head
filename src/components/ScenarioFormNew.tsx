@@ -221,9 +221,7 @@ const ScenarioFormNew = () => {
 
   const buttonText = !hasFreeScenario 
     ? "СОЗДАТЬ БЕСПЛАТНО" 
-    : formData.format === "short" 
-      ? "СОЗДАТЬ 5 СЦЕНАРИЕВ ЗА 499 ₽" 
-      : "СОЗДАТЬ СЦЕНАРИЙ ЗА 399 ₽";
+    : "СОЗДАТЬ СЦЕНАРИЙ ЗА 10 ₽";
   
 
   return (
