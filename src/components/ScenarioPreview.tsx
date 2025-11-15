@@ -192,7 +192,7 @@ const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullTex
     }
   };
 
-  const displayText = isFree && fullText ? fullText : preview.slice(0, 200);
+  const displayText = isFree ? fullText || preview : preview;
   const wordCount = getWordCount(displayText);
   const readingTime = getReadingTime(wordCount);
   const videoTime = getVideoTime(wordCount);
@@ -224,9 +224,8 @@ const ScenarioPreview = ({ preview, scenarioId, onClose, isFree = false, fullTex
         </div>
 
         <div className="bg-muted/50 p-4 md:p-6 rounded-none mb-6 max-h-[600px] md:max-h-[800px] overflow-y-auto">
-          <p className="whitespace-pre-wrap text-base md:text-lg leading-relaxed font-sans" style={{ lineHeight: '1.8' }}>
+          <p className="whitespace-pre-wrap text-base md:text-lg leading-relaxed" style={{ lineHeight: '1.8', fontFamily: "'Helvetica Neue', 'Helvetica', sans-serif", letterSpacing: '-0.03em' }}>
             {displayText}
-            {!isFree && <span className="text-muted-foreground">...</span>}
           </p>
         </div>
 
