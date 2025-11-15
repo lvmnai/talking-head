@@ -107,123 +107,13 @@ export const ReferralSection = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-medium tracking-tight mb-2">Реферальная программа</h2>
-        <p className="text-muted-foreground">
-          Приглашайте друзей и получайте 25% от всех их платежей на бонусный счет
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-medium tracking-tight mb-4">Реферальная программа</h2>
+        <p className="text-lg text-muted-foreground">
+          Скоро добавим
         </p>
       </div>
 
-      {/* Bonus Balance Card */}
-      <Card className="p-6 sketch-border-light bg-gradient-to-br from-primary/5 to-primary/10">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-primary" />
-            <span className="font-medium">Бонусный баланс</span>
-          </div>
-          <div className="text-3xl font-bold text-primary">
-            {stats.bonusBalance.toFixed(2)} ₽
-          </div>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Всего заработано: {stats.totalEarned.toFixed(2)} ₽
-        </div>
-      </Card>
-
-      {/* Referral Link */}
-      <Card className="p-6 sketch-border-light">
-        <div className="mb-4">
-          <label className="text-sm font-medium mb-2 block">Ваша реферальная ссылка</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={referralLink}
-              readOnly
-              className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-sm"
-            />
-            <Button onClick={copyReferralLink} size="sm">
-              <Copy className="w-4 h-4 mr-2" />
-              Копировать
-            </Button>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Поделитесь этой ссылкой с друзьями. Они получат скидку 15% на первую покупку, 
-          а вы — 25% от всех их покупок на бонусный счет.
-        </p>
-      </Card>
-
-      {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="p-4 sketch-border-light">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-100">
-              <MousePointerClick className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{stats.clicks}</div>
-              <div className="text-sm text-muted-foreground">Переходов</div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 sketch-border-light">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-100">
-              <Users className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{stats.registrations}</div>
-              <div className="text-sm text-muted-foreground">Регистраций</div>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 sketch-border-light">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-100">
-              <ShoppingCart className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{stats.conversions}</div>
-              <div className="text-sm text-muted-foreground">Покупок</div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Transaction History */}
-      {transactions.length > 0 && (
-        <Card className="p-6 sketch-border-light">
-          <h3 className="font-medium mb-4">История начислений</h3>
-          <div className="space-y-3">
-            {transactions.map((tx) => (
-              <div key={tx.id}>
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{tx.description}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(tx.created_at).toLocaleDateString('ru-RU', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                  </div>
-                  <div className={`text-lg font-bold ${
-                    tx.type === 'earned' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {tx.type === 'earned' ? '+' : '-'}{Number(tx.amount).toFixed(2)} ₽
-                  </div>
-                </div>
-                <Separator />
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
     </div>
   );
 };

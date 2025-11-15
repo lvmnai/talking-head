@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import ScenarioFormNew from "@/components/ScenarioFormNew";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
@@ -10,7 +11,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Index = () => {
   const hero = useScrollAnimation();
@@ -21,8 +21,6 @@ const Index = () => {
   const examples = useScrollAnimation();
   const faq = useScrollAnimation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [aiFlowOpen, setAiFlowOpen] = useState(false);
-  const [showGif, setShowGif] = useState(true);
 
   const faqData = [
     {
@@ -88,7 +86,7 @@ const Index = () => {
             </div>
             
             <div ref={cards.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto mb-8 md:mb-16 scroll-fade-in ${cards.isVisible ? 'visible' : ''}`}>
-              <div className="p-6 card-hover scroll-fade-in-delay-1">
+              <div className="p-6 scroll-fade-in-delay-1">
                 <div className="flex justify-center mb-4">
                   <img 
                     src="/images/vertical-video-sketch.png" 
@@ -101,7 +99,7 @@ const Index = () => {
                 <h3 className="font-medium text-xl mb-3 text-foreground">TikTok, Shorts, Instagram (1 мин)</h3>
                 <p className="text-foreground/70">Получишь 5 сценариев, по 3 креативных хука в каждом</p>
               </div>
-              <div className="p-6 card-hover scroll-fade-in-delay-2">
+              <div className="p-6 scroll-fade-in-delay-2">
                 <div className="flex justify-center mb-4">
                   <img 
                     src="/images/horizontal-video-sketch.png" 
@@ -132,13 +130,7 @@ const Index = () => {
             <h2 className="text-3xl md:text-5xl font-medium text-center mb-6 md:mb-8 text-foreground tracking-tight leading-tight">
               Вот как это работает
             </h2>
-            <div 
-              className="sketch-border p-4 cursor-pointer card-hover"
-              onClick={() => {
-                setAiFlowOpen(true);
-                setShowGif(true);
-              }}
-            >
+            <div className="p-4">
               <img 
                 src="/images/ai-flow.gif"
                 alt="Схема работы AI-агентов"
@@ -158,9 +150,16 @@ const Index = () => {
               <p className="text-lg text-foreground/70 leading-relaxed mb-4">
                 Мы автоматизируем то, что умеем: 10 лет занимаемся маркетингом и написали тысячи сценариев и рекламных роликов. Поэтому наши промпты построены на принципах, которые работают в реальности, а не по книжкам.
               </p>
-              <p className="text-xl font-medium text-foreground">
-                Создай 1 сценарий бесплатно, убедишься.
-              </p>
+              <Button 
+                onClick={() => {
+                  const formElement = document.querySelector('form');
+                  formElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                size="lg"
+                className="text-lg"
+              >
+                Создай 1 сценарий бесплатно
+              </Button>
             </div>
           </div>
           
@@ -210,7 +209,7 @@ const Index = () => {
               Посмотри примеры
             </h2>
             <p className="text-center text-foreground/70 mb-8 md:mb-16 max-w-3xl mx-auto text-lg leading-tight">
-              У нас нейросети пишут на уровне лучших сценаристов и креаторов. Потому что мы сами такие
+              У нас нейросети пишут на уровне лучших сценаристов и креаторов
             </p>
           </div>
           
@@ -246,7 +245,7 @@ const Index = () => {
                 ].map((item, index) => (
                   <div
                     key={index}
-                    className="flex-shrink-0 w-[85vw] card-hover bg-background cursor-pointer p-2"
+                    className="flex-shrink-0 w-[85vw] bg-background cursor-pointer p-2"
                     onClick={() => setSelectedImage(item.image)}
                   >
                     <img 
@@ -257,6 +256,12 @@ const Index = () => {
                   </div>
                 ))}
               </div>
+            </div>
+            {/* Scroll indicator */}
+            <div className="flex justify-center gap-1 mt-2">
+              <div className="w-2 h-2 rounded-full bg-foreground"></div>
+              <div className="w-2 h-2 rounded-full bg-muted"></div>
+              <div className="w-2 h-2 rounded-full bg-muted"></div>
             </div>
           </div>
           
@@ -272,41 +277,10 @@ const Index = () => {
             </DialogContent>
           </Dialog>
 
-          {/* AI Flow Dialog */}
-          <Dialog open={aiFlowOpen} onOpenChange={() => setAiFlowOpen(false)}>
-            <DialogContent className="max-w-6xl w-full p-4">
-              <div className="relative group">
-                <img 
-                  src={showGif ? "/images/ai-flow.gif" : "/images/ai-flow-static.png"}
-                  alt="Схема работы AI-агентов"
-                  className="w-full h-auto rounded-lg"
-                  loading="eager"
-                  decoding="async"
-                />
-                
-                {/* Navigation Arrows */}
-                <button
-                  onClick={() => setShowGif(!showGif)}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-background/90 hover:bg-background border border-border rounded-full transition-all opacity-0 group-hover:opacity-100"
-                  aria-label="Предыдущее изображение"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                
-                <button
-                  onClick={() => setShowGif(!showGif)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-background/90 hover:bg-background border border-border rounded-full transition-all opacity-0 group-hover:opacity-100"
-                  aria-label="Следующее изображение"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </div>
-            </DialogContent>
-          </Dialog>
         </section>
 
         {/* FAQ Section */}
-        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-12 md:py-24 mt-8 md:mt-16">
+        <section className="container mx-auto px-6 sm:px-12 lg:px-16 py-12 md:py-24 mt-4 md:mt-8">
           <div ref={faq.ref} className={`scroll-fade-in ${faq.isVisible ? 'visible' : ''}`}>
             <h2 className="text-4xl md:text-6xl font-medium text-center mb-8 md:mb-16 text-foreground tracking-tight leading-tight">
               Вопросы и ответы
