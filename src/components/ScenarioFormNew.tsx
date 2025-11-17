@@ -5,10 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Lightbulb, Info, LogIn } from "lucide-react";
+import { Loader2, Lightbulb, Info } from "lucide-react";
 import ScenarioPreview from "./ScenarioPreview";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useNavigate } from "react-router-dom";
 
 const GENERATION_STEPS = [
   { label: "Анализируем вашу ЦА...", duration: 8 },
@@ -26,12 +27,12 @@ const TIPS = [
 ];
 
 const ScenarioFormNew = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
   const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string; isFree?: boolean; fullText?: string; format?: string } | null>(null);
-  const [isFreeScenario, setIsFreeScenario] = useState(false);
   const [formData, setFormData] = useState({
     sphere: "",
     product: "",
@@ -42,38 +43,35 @@ const ScenarioFormNew = () => {
     format: "short",
   });
 
-  // Authentication state to control button label and access
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasFreeScenario, setHasFreeScenario] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAuthenticated(!!session);
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setIsAuthenticated(!!session);
+    
+    if (session) {
+      const { data: scenarios } = await supabase
+        .from('scenarios')
+        .select('is_free')
+        .eq('user_id', session.user.id)
+        .eq('is_free', true)
+        .limit(1);
       
-      // Check if user has already created a free scenario
-      if (session) {
-        const { data: scenarios } = await supabase
-          .from('scenarios')
-          .select('is_free')
-          .eq('user_id', session.user.id)
-          .eq('is_free', true)
-          .limit(1);
-        
-        setHasFreeScenario(scenarios && scenarios.length > 0);
-      }
-    };
+      setHasFreeScenario(scenarios && scenarios.length > 0);
+    }
+  };
+
+  useEffect(() => {
     checkAuth();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Проверяем авторизацию ПЕРЕД генерацией
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast.error("Войдите через Google, чтобы создать сценарий");
-      // Сохраняем данные формы в localStorage для восстановления после входа
       localStorage.setItem('pendingScenarioForm', JSON.stringify(formData));
       window.location.href = '/auth?redirect=/';
       return;
@@ -84,12 +82,22 @@ const ScenarioFormNew = () => {
       return;
     }
 
+    // Если уже есть бесплатный сценарий - создаем черновик и перенаправляем на оплату
+    if (hasFreeScenario) {
+      await handlePaidScenario(session);
+      return;
+    }
+
+    // Генерируем бесплатный сценарий
+    await generateFreeScenario(session);
+  };
+
+  const generateFreeScenario = async (session: any) => {
     setIsLoading(true);
     setGenerationProgress(0);
     setCurrentStep(0);
     setCurrentTip(0);
 
-    // Simulate progress through steps
     const progressInterval = setInterval(() => {
       setGenerationProgress(prev => {
         if (prev >= 100) return 100;
@@ -121,7 +129,7 @@ const ScenarioFormNew = () => {
           goal: formData.goal,
           tone: formData.tone,
           format: formData.format,
-          is_free: isFreeScenario,
+          is_free: true,
         },
       });
 
@@ -138,11 +146,11 @@ const ScenarioFormNew = () => {
         setPreviewData({ 
           preview: data.preview, 
           scenarioId: data.scenarioId,
-          isFree: data.isFree,
+          isFree: true,
           fullText: data.fullText,
           format: formData.format
         });
-        toast.success(data.isFree ? "Бесплатный тестовый сценарий создан!" : "Сценарий успешно создан!");
+        toast.success("Бесплатный тестовый сценарий создан!");
       } else {
         throw new Error("Invalid response format");
       }
@@ -169,41 +177,68 @@ const ScenarioFormNew = () => {
     }
   };
 
-  // Check if user already has a free scenario
-  const checkFreeScenario = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      const { data, error } = await supabase
-        .from('scenarios')
-        .select('is_free')
-        .eq('user_id', session.user.id)
-        .eq('is_free', true)
-        .limit(1);
+  const handlePaidScenario = async (session: any) => {
+    try {
+      setIsLoading(true);
       
-      setHasFreeScenario(data && data.length > 0);
-      setIsFreeScenario(!data || data.length === 0);
-    } else {
-      setHasFreeScenario(false);
-      setIsFreeScenario(false);
+      // Создаем черновик сценария в БД
+      const { data: scenarioData, error: scenarioError } = await supabase
+        .from('scenarios')
+        .insert({
+          user_id: session.user.id,
+          parameters: formData,
+          preview_text: '',
+          full_text: '',
+          is_free: false,
+          is_paid: false,
+        })
+        .select()
+        .single();
+
+      if (scenarioError) throw scenarioError;
+
+      // Определяем цену в зависимости от формата
+      const basePrice = formData.format === 'short' ? 499 : 399;
+
+      // Создаем платеж
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-yookassa-payment', {
+        body: {
+          scenario_id: scenarioData.id,
+          amount: basePrice,
+          description: 'Оплата сценария',
+          use_bonus: false
+        },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (paymentError) throw paymentError;
+
+      if (paymentData?.error) {
+        toast.error(paymentData.error);
+        return;
+      }
+
+      if (paymentData?.paid_with_bonus) {
+        // Если оплачено бонусами - перенаправляем на страницу генерации
+        navigate(`/payment/return?payment_id=bonus_${scenarioData.id}&scenario_id=${scenarioData.id}`);
+        return;
+      }
+
+      if (paymentData?.payment_url) {
+        window.location.href = paymentData.payment_url;
+      } else {
+        toast.error('Не удалось получить ссылку на оплату');
+      }
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast.error('Произошла ошибка при создании платежа');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    checkFreeScenario();
-    
-    // Восстанавливаем данные формы после авторизации
-    const savedForm = localStorage.getItem('pendingScenarioForm');
-    if (savedForm) {
-      try {
-        const parsed = JSON.parse(savedForm);
-        setFormData(parsed);
-        localStorage.removeItem('pendingScenarioForm');
-        toast.success("Теперь можете создать сценарий!");
-      } catch (e) {
-        console.error('Failed to restore form data:', e);
-      }
-    }
-  }, []);
 
   if (previewData) {
     return (
@@ -215,7 +250,7 @@ const ScenarioFormNew = () => {
         format={previewData.format}
         onClose={() => {
           setPreviewData(null);
-          checkFreeScenario(); // Re-check after closing
+          checkAuth();
         }}
       />
     );
@@ -234,14 +269,18 @@ const ScenarioFormNew = () => {
         <div className="sketch-border p-8 mb-6 animate-fade-in">
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-medium">{GENERATION_STEPS[currentStep].label}</h3>
-              <span className="text-sm text-muted-foreground">~{60 - Math.floor(generationProgress * 0.6)} сек</span>
+              <h3 className="text-lg font-medium">{hasFreeScenario ? "Создаем платеж..." : GENERATION_STEPS[currentStep].label}</h3>
+              {!hasFreeScenario && <span className="text-sm text-muted-foreground">~{60 - Math.floor(generationProgress * 0.6)} сек</span>}
             </div>
-            <Progress value={generationProgress} className="h-2" />
-            <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded-none animate-fade-in">
-              <Lightbulb className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              <p>{TIPS[currentTip]}</p>
-            </div>
+            {!hasFreeScenario && (
+              <>
+                <Progress value={generationProgress} className="h-2" />
+                <div className="flex items-start gap-2 text-sm text-muted-foreground bg-muted/30 p-3 rounded-none animate-fade-in">
+                  <Lightbulb className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <p>{TIPS[currentTip]}</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

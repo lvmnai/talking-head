@@ -38,7 +38,7 @@ const PaymentReturn = () => {
 
         if (scenario?.is_paid) {
           setStatus("success");
-          setMessage("Оплата успешно завершена! Полный текст сценария доступен в личном кабинете.");
+          setMessage("Оплата успешно завершена! Сценарий генерируется и будет доступен в личном кабинете.");
           
           // Trigger confetti
           confetti({
