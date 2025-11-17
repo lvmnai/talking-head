@@ -15,7 +15,7 @@ const Footer = () => {
           <div>
             <h4 className="font-medium mb-6 text-foreground">Контакты</h4>
             <ul className="space-y-3 text-sm text-foreground/70">
-              <li><a href="/contact" className="hover:text-foreground transition-colors">Связаться с нами</a></li>
+              <li><a href="https://t.me/lyaminvl" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Связаться с нами</a></li>
             </ul>
           </div>
         </div>
