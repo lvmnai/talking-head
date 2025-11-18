@@ -110,11 +110,12 @@ const Dashboard = () => {
       setProfile(profileData);
     }
 
-    // Загружаем только оплаченные сценарии
+    // Загружаем оплаченные и бесплатные сценарии пользователя
     const { data: scenariosData } = await supabase
       .from("scenarios")
       .select("*")
-      .eq("is_paid", true)
+      .eq("user_id", session.user.id)
+      .or("is_paid.eq.true,is_free.eq.true")
       .order("created_at", { ascending: false });
 
     if (scenariosData) {
@@ -402,12 +403,19 @@ const Dashboard = () => {
                     {formatDate(scenario.created_at)}
                   </p>
 
-                  <div className="bg-muted/50 p-3 md:p-4 rounded-none mb-4 max-h-60 md:max-h-96 overflow-y-auto">
-                    <p className="whitespace-pre-wrap text-base leading-relaxed font-sans" style={{ lineHeight: '1.8' }}>
-                      {scenario.is_paid || scenario.is_free ? scenario.full_text : scenario.preview_text}
-                      {!scenario.is_paid && !scenario.is_free && "..."}
-                    </p>
-                  </div>
+                  {(scenario.is_paid || scenario.is_free) && scenario.full_text ? (
+                    <div className="bg-muted/50 p-3 md:p-4 rounded-none mb-4 max-h-60 md:max-h-96 overflow-y-auto">
+                      <p className="whitespace-pre-wrap text-base leading-relaxed font-sans" style={{ lineHeight: '1.8' }}>
+                        {scenario.full_text}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-muted/50 p-3 md:p-4 rounded-none mb-4">
+                      <p className="text-muted-foreground text-center py-4">
+                        Текст сценария недоступен. Попробуйте создать новый сценарий.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="flex flex-col sm:flex-row gap-2">
                     {scenario.is_free && (
