@@ -137,23 +137,47 @@ const ScenarioFormNew = () => {
       clearInterval(stepInterval);
       clearInterval(tipInterval);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+      
+      console.log('Generate scenario response:', data);
+      console.log('Response keys:', data ? Object.keys(data) : 'no data');
       
       setGenerationProgress(100);
       setCurrentStep(GENERATION_STEPS.length - 1);
       
-      if (data?.preview && data?.scenarioId) {
-        setPreviewData({ 
-          preview: data.preview, 
-          scenarioId: data.scenarioId,
-          isFree: true,
-          fullText: data.fullText,
-          format: formData.format
-        });
-        toast.success("Бесплатный тестовый сценарий создан!");
-      } else {
-        throw new Error("Invalid response format");
+      if (!data) {
+        console.error('No data received from edge function');
+        throw new Error("Пустой ответ от сервера");
       }
+      
+      if (!data.preview || data.preview.length === 0) {
+        console.error('No preview in response. Data:', data);
+        throw new Error("Не получен текст сценария");
+      }
+      
+      if (!data.scenarioId) {
+        console.error('No scenarioId in response. Data:', data);
+        throw new Error("Не получен ID сценария");
+      }
+      
+      console.log('Setting preview data with:', {
+        previewLength: data.preview?.length,
+        scenarioId: data.scenarioId,
+        fullTextLength: data.fullText?.length,
+        isFree: data.isFree
+      });
+      
+      setPreviewData({ 
+        preview: data.preview, 
+        scenarioId: data.scenarioId,
+        isFree: true,
+        fullText: data.fullText,
+        format: formData.format
+      });
+      toast.success("Бесплатный тестовый сценарий создан!");
       
       setFormData({
         sphere: "",
