@@ -163,22 +163,48 @@ serve(async (req) => {
 
     const responseText = await response.text();
     console.log('Webhook response received successfully');
+    console.log('Response text length:', responseText.length);
 
     let fullText: string;
     try {
       const parsed = JSON.parse(responseText);
+      console.log('JSON parsed successfully, type:', typeof parsed, 'isArray:', Array.isArray(parsed));
+      
       // Handle array format: [{ "output": "..." }]
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].output) {
-        fullText = parsed[0].output;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        console.log('Response is array with length:', parsed.length);
+        if (parsed[0].output) {
+          fullText = parsed[0].output;
+          console.log('Extracted fullText from parsed[0].output, length:', fullText.length);
+        } else if (typeof parsed[0] === 'string') {
+          fullText = parsed[0];
+          console.log('Used parsed[0] as string, length:', fullText.length);
+        } else {
+          fullText = JSON.stringify(parsed[0]);
+          console.log('Stringified parsed[0], length:', fullText.length);
+        }
       } else if (parsed.scenario) {
         fullText = parsed.scenario;
+        console.log('Extracted fullText from parsed.scenario, length:', fullText.length);
       } else if (parsed.output) {
         fullText = parsed.output;
+        console.log('Extracted fullText from parsed.output, length:', fullText.length);
+      } else if (typeof parsed === 'string') {
+        fullText = parsed;
+        console.log('Used parsed as string, length:', fullText.length);
       } else {
         fullText = responseText;
+        console.log('Fallback to responseText, length:', fullText.length);
       }
-    } catch {
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
       fullText = responseText;
+      console.log('Using raw responseText as fallback, length:', fullText.length);
+    }
+    
+    if (!fullText || fullText.length === 0) {
+      console.error('ERROR: fullText is empty!');
+      throw new Error('Пустой ответ от сервиса генерации');
     }
 
     // Extract substantial preview (first 4000 characters to show value)
