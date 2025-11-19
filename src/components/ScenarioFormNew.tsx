@@ -33,14 +33,27 @@ const ScenarioFormNew = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [currentTip, setCurrentTip] = useState(0);
   const [previewData, setPreviewData] = useState<{ preview: string; scenarioId: string; isFree?: boolean; fullText?: string; format?: string } | null>(null);
-  const [formData, setFormData] = useState({
-    sphere: "",
-    product: "",
-    audience: "",
-    problems: "",
-    goal: "sales",
-    tone: "friendly",
-    format: "short",
+  const [formData, setFormData] = useState(() => {
+    // Восстанавливаем данные из localStorage если есть
+    const savedData = localStorage.getItem('pendingScenarioForm');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        localStorage.removeItem('pendingScenarioForm'); // Очищаем после восстановления
+        return parsed;
+      } catch (e) {
+        console.error('Error parsing saved form data:', e);
+      }
+    }
+    return {
+      sphere: "",
+      product: "",
+      audience: "",
+      problems: "",
+      goal: "sales",
+      tone: "friendly",
+      format: "short",
+    };
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
