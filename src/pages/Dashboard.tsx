@@ -110,12 +110,11 @@ const Dashboard = () => {
       setProfile(profileData);
     }
 
-    // Загружаем оплаченные и бесплатные сценарии пользователя
+    // Загружаем все сценарии пользователя
     const { data: scenariosData } = await supabase
       .from("scenarios")
       .select("*")
       .eq("user_id", session.user.id)
-      .or("is_paid.eq.true,is_free.eq.true")
       .order("created_at", { ascending: false });
 
     if (scenariosData) {
