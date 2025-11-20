@@ -125,34 +125,33 @@ serve(async (req) => {
       );
     }
 
-    // Build webhook URL and payload
-    const webhookUrl = 'https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0';
+    // Build webhook URL with GET query params
+    // Limit parameter lengths to avoid 431 error (max ~1500 chars per param to be safe)
+    const MAX_PARAM_LENGTH = 1500;
+    const truncate = (str: string, max: number) => str.length > max ? str.substring(0, max) : str;
     
-    // Build JSON payload instead of URL params to avoid 431 error
-    const payload: Record<string, string> = {
-      idea,
-      audience,
-      purpose,
-      tone,
-      format,
-      mood: 'creative',
-      is_free: isFree ? 'true' : 'false',
-    };
+    const base = 'https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0';
+    const url = new URL(base);
+
+    url.searchParams.set('idea', truncate(idea, MAX_PARAM_LENGTH));
+    url.searchParams.set('audience', truncate(audience, MAX_PARAM_LENGTH));
+    url.searchParams.set('purpose', purpose);
+    url.searchParams.set('tone', tone);
+    url.searchParams.set('format', format);
+    url.searchParams.set('mood', 'creative');
 
     // Include optional or extra context if present
-    if (contentType) payload.channel = contentType;
-    if (sphere) payload.sphere = sphere;
-    if (product) payload.product = product;
-    if (problems) payload.problems = problems;
+    if (contentType) url.searchParams.set('channel', contentType);
+    if (sphere) url.searchParams.set('sphere', truncate(sphere, MAX_PARAM_LENGTH));
+    if (product) url.searchParams.set('product', truncate(product, MAX_PARAM_LENGTH));
+    if (problems) url.searchParams.set('problems', truncate(problems, MAX_PARAM_LENGTH));
+    // Always send is_free parameter
+    url.searchParams.set('is_free', isFree ? 'true' : 'false');
 
     console.log('Generating scenario for user:', userId || 'anonymous');
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
     });
 
     console.log('Webhook response status:', response.status);
