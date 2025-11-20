@@ -126,15 +126,11 @@ serve(async (req) => {
     }
 
     // Build webhook URL with GET query params
-    // Limit parameter lengths to avoid 431 error (max ~1500 chars per param to be safe)
-    const MAX_PARAM_LENGTH = 1500;
-    const truncate = (str: string, max: number) => str.length > max ? str.substring(0, max) : str;
-    
     const base = 'https://lvmnai.ru/webhook/dc2ac900-e689-4421-8f0f-cb4358f4f0a0';
     const url = new URL(base);
 
-    url.searchParams.set('idea', truncate(idea, MAX_PARAM_LENGTH));
-    url.searchParams.set('audience', truncate(audience, MAX_PARAM_LENGTH));
+    url.searchParams.set('idea', idea);
+    url.searchParams.set('audience', audience);
     url.searchParams.set('purpose', purpose);
     url.searchParams.set('tone', tone);
     url.searchParams.set('format', format);
@@ -142,9 +138,9 @@ serve(async (req) => {
 
     // Include optional or extra context if present
     if (contentType) url.searchParams.set('channel', contentType);
-    if (sphere) url.searchParams.set('sphere', truncate(sphere, MAX_PARAM_LENGTH));
-    if (product) url.searchParams.set('product', truncate(product, MAX_PARAM_LENGTH));
-    if (problems) url.searchParams.set('problems', truncate(problems, MAX_PARAM_LENGTH));
+    if (sphere) url.searchParams.set('sphere', sphere);
+    if (product) url.searchParams.set('product', product);
+    if (problems) url.searchParams.set('problems', problems);
     // Always send is_free parameter
     url.searchParams.set('is_free', isFree ? 'true' : 'false');
 
