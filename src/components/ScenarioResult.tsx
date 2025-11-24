@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Copy, Download, X, ChevronDown, Edit3, Eye } from "lucide-react";
+import { Copy, Download, X, ChevronDown, Edit3, Eye, Blocks } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { exportScenario, ExportFormat } from "@/lib/exportUtils";
 import { ScenarioEditor } from "./ScenarioEditor";
+import { BlockEditor } from "./BlockEditor";
 
 interface ScenarioResultProps {
   scenario: string;
@@ -18,7 +19,7 @@ interface ScenarioResultProps {
 }
 
 const ScenarioResult = ({ scenario, onClose }: ScenarioResultProps) => {
-  const [isEditorMode, setIsEditorMode] = useState(false);
+  const [editorMode, setEditorMode] = useState<"view" | "simple" | "blocks">("view");
   const [currentScenario, setCurrentScenario] = useState(scenario);
 
   const handleCopy = async () => {
@@ -62,30 +63,49 @@ const ScenarioResult = ({ scenario, onClose }: ScenarioResultProps) => {
           <div>
             <h2 className="text-3xl font-medium text-foreground mb-2">Ваш сценарий готов!</h2>
             <p className="text-foreground/70">
-              {isEditorMode ? 'Редактируйте с AI-подсказками' : 'Можно сразу снимать'}
+              {editorMode === "blocks" 
+                ? 'Блочный редактор с AI-подсказками' 
+                : editorMode === "simple"
+                ? 'Простой редактор с анализом'
+                : 'Можно сразу снимать'}
             </p>
           </div>
-          <Button
-            onClick={() => setIsEditorMode(!isEditorMode)}
-            variant="outline"
-            size="sm"
-          >
-            {isEditorMode ? (
-              <>
-                <Eye className="mr-2 h-4 w-4" />
-                Просмотр
-              </>
-            ) : (
-              <>
-                <Edit3 className="mr-2 h-4 w-4" />
-                Редактор с AI
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setEditorMode(editorMode === "view" ? "simple" : "view")}
+              variant="outline"
+              size="sm"
+            >
+              {editorMode === "view" ? (
+                <>
+                  <Edit3 className="mr-2 h-4 w-4" />
+                  Простой редактор
+                </>
+              ) : (
+                <>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Просмотр
+                </>
+              )}
+            </Button>
+            <Button
+              onClick={() => setEditorMode(editorMode === "blocks" ? "view" : "blocks")}
+              variant={editorMode === "blocks" ? "default" : "outline"}
+              size="sm"
+            >
+              <Blocks className="mr-2 h-4 w-4" />
+              Блочный редактор
+            </Button>
+          </div>
         </div>
       </div>
 
-      {isEditorMode ? (
+      {editorMode === "blocks" ? (
+        <BlockEditor
+          initialText={currentScenario}
+          onSave={(newText) => setCurrentScenario(newText)}
+        />
+      ) : editorMode === "simple" ? (
         <ScenarioEditor
           initialText={currentScenario}
           onSave={(newText) => setCurrentScenario(newText)}
