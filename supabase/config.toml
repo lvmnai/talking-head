@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.track-referral]
 verify_jwt = false
+
+[functions.yandex-oauth]
+verify_jwt = false
