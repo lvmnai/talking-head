@@ -9,6 +9,7 @@ import About from "./pages/About";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import YandexCallback from "./pages/YandexCallback";
 import Dashboard from "./pages/Dashboard";
 import Examples from "./pages/Examples";
 import PaymentReturn from "./pages/PaymentReturn";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/yandex-callback" element={<YandexCallback />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/payment/return" element={<PaymentReturn />} />
           <Route path="*" element={<NotFound />} />
